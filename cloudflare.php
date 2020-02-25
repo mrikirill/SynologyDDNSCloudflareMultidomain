@@ -27,7 +27,7 @@ class updateCFDDNS
 
         $this->account = (string) $argv[1];
         $this->apiKey = (string) $argv[2]; // CF Global API Key
-        $hostname = (string) $argv[3]; //example: example.com---sundomain.example1.com---example2.com
+        $hostname = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
         $this->ip = (string) $argv[4];
 
         $this->validateIpV4($this->ip);
@@ -37,17 +37,14 @@ class updateCFDDNS
             $this->badParam('empty host list');
         }
 
-        foreach ($arHost as $value) {
-            $arParam = $this->getHostnameFromStr($value);
-            if ($arParam['success']) {
-                $this->hostList[$arParam['fullname']] = [
-                    'hostname' => $arParam['hostname'],
-                    'fullname' => $arParam['fullname'],
-                    'zoneId' => '',
-                    'recordId' => '',
-                    'proxied' => true,
-                ];
-            }
+        foreach ($arHost as $value) {          
+            $this->hostList[$value] = [
+                'hostname' => '',
+                'fullname' => $value,
+                'zoneId' => '',
+                'recordId' => '',
+                'proxied' => true,
+            ];
         }
 
         $this->setZones();
@@ -60,7 +57,10 @@ class updateCFDDNS
      */
     function makeUpdateDNS()
     {
-        $url = "https://api.cloudflare.com/client/v4/zones/${zoneID}/dns_records/$recordID";
+        if(empty($this->hostList)) {
+            $this->badParam();
+        }
+
         foreach ($this->hostList as $arHost) {
             $post = [
                 'type' => 'A',
@@ -76,7 +76,7 @@ class updateCFDDNS
                 exit();
             }
         }
-        printf("good");
+        echo "good";
     }
 
     function badParam($msg = '')
@@ -92,24 +92,7 @@ class updateCFDDNS
         }
         return true;
     }
-    /**
-     * Get hostname (without subdomain) and fullname (with subdomain if exist)
-     * @return ['success' => true/false, 'hostname' => '', 'fullname' => '']
-     */
-    function getHostnameFromStr($str)
-    {
-        $ar = explode('.', $str);
-        $res = ['success' => true, 'hostname' => '', 'fullname' => ''];
-        if (count($ar) == 1) {
-            $res['success'] = false;
-        }
-        if (count($ar) > 1) {
-            $res['hostname'] = $ar[count($ar) - 2] . '.' . $ar[count($ar) - 1];
-            $res['fullname'] = $str;
-        }
-        return $res;
-    }
-
+ 
     /**
      * Set ZoneID for each hosts
      */
@@ -119,16 +102,36 @@ class updateCFDDNS
         if (!$json['success']) {
             $this->badParam('getZone unsuccessful response');
         }
-        $res = [];
+        $arZones = [];
         foreach ($json['result'] as $ar) {
-            $res[$ar['name']] = $ar['id'];
+            $arZones[] = [
+                'hostname' => $ar['name'],
+                'zoneId' => $ar['id']
+            ];
         }
 
-        foreach ($this->hostList as $arHost) {
-            if ($res[$arHost['hostname']]) {
-                $this->hostList[$arHost['fullname']]['zoneId'] = $res[$arHost['hostname']];
+        foreach ($this->hostList as $hostname => $arHost) {
+            $res = $this->isZonesContainFullname($arZones, $arHost['fullname']);
+            if(!empty($res)) {
+                $this->hostList[$hostname]['zoneId'] = $res['zoneId'];
+                $this->hostList[$hostname]['hostname'] = $res['hostname'];
             }
         }
+    }
+
+    /**
+     * Find hostname for full domain name
+     * example: domain.com.uk --> vpn.domain.com.uk
+     */
+    function isZonesContainFullname($arZones, $fullname){
+        $res = [];
+        foreach($arZones as $arZone) {
+            if (strpos($fullname, $arZone['hostname']) !== false) {
+                $res = $arZone;
+                break;
+            }
+        }
+        return $res;
     }
 
     /**
