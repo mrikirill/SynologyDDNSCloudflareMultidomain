@@ -4,7 +4,7 @@ Synology DDNS Cloudflare with multidomains and subdomains
 Description
 ---------------
 * A PHP script for Synology DSM which adds Cloudflare DDNS support in your DMS
-* Supports multidomains and subdomains
+* Supports multidomains, subdomains and also regional domains (example: dev.my.domain.com.au, domain.com.uk etc)
 * Easy instalation process
 * Based on CloudFlare API v4
 
