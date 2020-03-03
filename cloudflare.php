@@ -175,27 +175,20 @@ class updateCFDDNS
 
         switch($method) {
             case "GET":
-                $params = [
-                    CURLOPT_HTTPGET => true,     
-                ];
-                $options = array_merge($options, $params);
+                $options[CURLOPT_HTTPGET] = true;
             break;    
 
             case "POST":
-                $params = [
-                    CURLOPT_POST => true,
-                    CURLOPT_POSTFIELDS => json_encode($data),
-                ];
-                $options = array_merge($options, $params);
+                $options[CURLOPT_POST] = true;
+                $options[CURLOPT_HTTPGET] = false;
+                $options[CURLOPT_POSTFIELDS] = json_encode($data);
             break;
 
             case "PUT":
-                $params = [
-                    CURLOPT_POST => false,
-                    CURLOPT_CUSTOMREQUEST => "PUT",
-                    CURLOPT_POSTFIELDS => json_encode($data),
-                ];
-                $options = array_merge($options, $params);
+                $options[CURLOPT_POST] = false;
+                $options[CURLOPT_HTTPGET] = false;
+                $options[CURLOPT_CUSTOMREQUEST] = "PUT";
+                $options[CURLOPT_POSTFIELDS] = json_encode($data);
             break;
         }
 
