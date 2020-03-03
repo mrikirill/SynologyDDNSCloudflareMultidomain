@@ -52,8 +52,9 @@ class updateCFDDNS
             $this->setRecord($arHost['fullname'], $arHost['zoneId']);
         }
     }
+    
     /**
-     * Update CF DNS records  
+     * Update CF DNS records 
      */
     function makeUpdateDNS()
     {
@@ -70,7 +71,7 @@ class updateCFDDNS
                 'proxied' => $arHost['proxied'],
             ];
 
-            $json = $this->callApiCFPOST("client/v4/zones/" . $arHost['zoneId'] . "/dns_records/" . $arHost['recordId'], $post);
+            $json = $this->callCFapi("PUT", "client/v4/zones/" . $arHost['zoneId'] . "/dns_records/" . $arHost['recordId'], $post);
             if (!$json['success']) {
                 echo 'Update Record failed';
                 exit();
@@ -98,7 +99,7 @@ class updateCFDDNS
      */
     function setZones()
     {
-        $json = $this->callCFApiGET('client/v4/zones');
+        $json = $this->callCFapi("GET", "client/v4/zones");
         if (!$json['success']) {
             $this->badParam('getZone unsuccessful response');
         }
@@ -148,7 +149,7 @@ class updateCFDDNS
             return false;
         }
 
-        $json = $this->callCFApiGET("client/v4/zones/${zoneId}/dns_records?type=A&name=${fullname}");
+        $json = $this->callCFapi("GET", "client/v4/zones/${zoneId}/dns_records?type=A&name=${fullname}");
         if (!$json['success']) {
             $this->badParam('unsuccessful response for getRecord host: ' . $fullname);
         }
@@ -156,39 +157,49 @@ class updateCFDDNS
         $this->hostList[$fullname]['proxied'] = $json['result']['0']['proxied'];
     }
 
-    function callCFApiGET($path)
-    {
-        $req = curl_init();
-        $options = array(
+    /**
+     * Call CloudFlare v4 API @link https://api.cloudflare.com/#getting-started-endpoints
+     */
+    function callCFapi($method, $path, $data = []) {
+        $options = [
             CURLOPT_URL => self::API_URL . '/' . $path,
-            CURLOPT_HTTPGET => true,
+            CURLOPT_HTTPHEADER => ["X-Auth-Email: $this->account", "X-Auth-Key: $this->apiKey", "Content-Type: application/json"],
+            CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER => false,
             CURLOPT_VERBOSE => false,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => array("X-Auth-Email: $this->account", "X-Auth-Key: $this->apiKey", "Content-Type: application/json")
-        );
+        ];
 
-        curl_setopt_array($req, $options);
-        $res = curl_exec($req);
-        curl_close($req);
-        return json_decode($res, true);
-    }
+        if(empty($method)){
+            $this->badParam('Empty method');
+        }
 
-    function callApiCFPOST($path, $data)
-    {
+        switch($method) {
+            case "GET":
+                $params = [
+                    CURLOPT_HTTPGET => true,     
+                ];
+                $options = array_merge($options, $params);
+            break;    
+
+            case "POST":
+                $params = [
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => json_encode($data),
+                ];
+                $options = array_merge($options, $params);
+            break;
+
+            case "PUT":
+                $params = [
+                    CURLOPT_POST => false,
+                    CURLOPT_CUSTOMREQUEST => "PUT",
+                    CURLOPT_POSTFIELDS => json_encode($data),
+                ];
+                $options = array_merge($options, $params);
+            break;
+        }
+
         $req = curl_init();
-        $options = array(
-            CURLOPT_URL => self::API_URL . '/' . $path,
-            CURLOPT_HTTPGET => false,
-            CURLOPT_CUSTOMREQUEST => "PUT",
-            CURLOPT_HEADER => false,
-            CURLOPT_VERBOSE => false,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => array("X-Auth-Email: $this->account", "X-Auth-Key: $this->apiKey", "Content-Type: application/json"),
-            CURLOPT_POST => false,
-            CURLOPT_POSTFIELDS => json_encode($data)
-        );
-
         curl_setopt_array($req, $options);
         $res = curl_exec($req);
         curl_close($req);
