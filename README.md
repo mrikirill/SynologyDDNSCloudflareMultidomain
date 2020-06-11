@@ -1,6 +1,34 @@
 Synology DDNS Cloudflare with multidomains and subdomains
 ========================
 
+Update note
+---------------
+I've mentioned that after Synology DSM update, the file __/usr/syno/bin/ddns/cloudflare.php__ has been deleted and __/etc.defaults/ddns_provider.conf__ reset to default settings.
+
+For that case you need just repeat all installations steps.
+
+The list of default Cloudflare ports
+---------------
+
+HTTP ports supported by Cloudflare:
+
+80
+8080
+8880
+2052
+2082
+2086
+2095
+
+HTTPS ports supported by Cloudflare:
+
+443
+2053
+2083
+2087
+2096
+8443
+
 Description
 ---------------
 * A PHP script for Synology DSM which adds Cloudflare DDNS support in your DMS
@@ -45,4 +73,4 @@ wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidoma
 
 ![image](example3.png)
 
-6. Enjoy 🍺
+6. Enjoy 🍺 and __don't forget to deactivate SSH (step 1) if you don't need it__
