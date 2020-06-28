@@ -31,7 +31,7 @@ HTTPS ports supported by Cloudflare:
 
 Description
 ---------------
-* A PHP script for Synology DSM which adds Cloudflare DDNS support in your DMS
+* A PHP script for Synology DSM (and potentially Synology SRM devices) which adds Cloudflare DDNS support in your DMS
 * Supports multidomains, subdomains and also regional domains (example: dev.my.domain.com.au, domain.com.uk etc)
 * Easy instalation process
 * Based on CloudFlare API v4
@@ -52,9 +52,16 @@ Installation
 
 2. Connect via SSH and execute command
 
-```
-wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/cloudflare.php -O /usr/syno/bin/ddns/cloudflare.php && sudo chmod 755 /usr/syno/bin/ddns/cloudflare.php
-```
+* DSM Users
+  ```
+  wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/cloudflare.php -O /usr/syno/bin/ddns/cloudflare.php && sudo chmod 755 /usr/syno/bin/ddns/cloudflare.php
+  ```
+
+* SRM Users
+  Note: Ensure you are connected as root in your SSH session
+  ```
+  wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/cloudflare.php -O /usr/syno/bin/ddns/cloudflare.php && chmod 755 /usr/syno/bin/ddns/cloudflare.php
+  ```
 
 3. Add Cloudflare to the list of DDNS providers DMS file(Location : __/etc.defaults/ddns_provider.conf__)
 
