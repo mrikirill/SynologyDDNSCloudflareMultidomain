@@ -3,33 +3,14 @@
 
 ## Table of contents
 
-* [Update note](#update-note)
-* [Default Cloudflare ports](#default-cloudflare-ports)
 * [What this script does](#what-this-script-does)
 * [Before you begin](#before-you-begin)
 * [Example](#example)
 * [How to install](#how-to-install)
 * [Troubleshooting](#troubleshooting)
     + [Error returned, such as 1020 error; or update attempt not showing in Cloudflare Audit logs?](#error-returned--such-as-1020-error--or-update-attempt-not-showing-in-cloudflare-audit-logs-)
-
-## Update note
-
-*Reinstall may be required after updating DSM*
-After updates to Synology DSM, you may find the file __/usr/syno/bin/ddns/cloudflare.php__ has been deleted, and __/etc.defaults/ddns_provider.conf__ reset to default settings.
-
-If this occurs, simply repeat the installations steps below.
-
-## Default Cloudflare ports
-
-|HTTP ports supported by Cloudflare  | HTTPS ports supported by Cloudflare |
-|--|--|
-| 80 | 443 |
-| 8080 | 2053 | 
-| 8880 | 2083 |
-| 2052 | 2087 | 
-| 2082 | 2096 |
-| 2086 | 8443 | 
-| 2095 | |
+    + [Cloudflare no longer listed as a DDNS provider after a DSM update](#cloudflare-no-longer-listed-as-a-ddns-provider-after-a-dsm-update)
+* [Default Cloudflare ports](#default-cloudflare-ports)
 
 
 ## What this script does
@@ -113,7 +94,7 @@ For multiple domains: __subdomain.mydomain.com---vpn.mydomain.com__
 
 5. Enjoy 🍺 and __don't forget to deactivate SSH (step 1) if you don't need it__.
 
-## Troubleshooting
+## Troubleshooting and known issues
 
 ### Error returned, such as 1020 error; or update attempt not showing in Cloudflare Audit logs?
 That generally means you've not entered something correctly in the DDNS screen for your domain.
@@ -121,3 +102,21 @@ That generally means you've not entered something correctly in the DDNS screen f
 Revisit Step 4 in How to install, and make sure everything is correctly entered.
 
 And you can also check your Cloudflare Audit logs to see what - if anything - has made it there with your API key (More information: [Understanding Cloudflare Audit Logs](https://support.cloudflare.com/hc/en-us/articles/115002833612-Understanding-Cloudflare-Audit-Logs). Updates using the API will appear in the Audit logs as a Rec Set action.
+
+## Cloudflare no longer listed as a DDNS provider after a DSM update
+
+After updates to Synology DSM, you may find the file __/usr/syno/bin/ddns/cloudflare.php__ has been deleted, and __/etc.defaults/ddns_provider.conf__ reset to default settings.
+
+If this occurs, simply repeat the How to install steps above.
+
+## Default Cloudflare ports
+
+|HTTP ports supported by Cloudflare  | HTTPS ports supported by Cloudflare |
+|--|--|
+| 80 | 443 |
+| 8080 | 2053 | 
+| 8880 | 2083 |
+| 2052 | 2087 | 
+| 2082 | 2096 |
+| 2086 | 8443 | 
+| 2095 | |
