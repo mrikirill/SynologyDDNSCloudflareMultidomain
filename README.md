@@ -7,9 +7,9 @@
 * [Before you begin](#before-you-begin)
 * [Example](#example)
 * [How to install](#how-to-install)
-* [Troubleshooting](#troubleshooting)
-    + [Error returned, such as 1020 error; or update attempt not showing in Cloudflare Audit logs?](#error-returned--such-as-1020-error--or-update-attempt-not-showing-in-cloudflare-audit-logs-)
-    + [Cloudflare no longer listed as a DDNS provider after a DSM update](#cloudflare-no-longer-listed-as-a-ddns-provider-after-a-dsm-update)
+* [Troubleshooting and known issues](#troubleshooting-and-known-issues)
+  + [Connection test failed or error returned](#connection-test-failed-or-error-returned)
+  + [Cloudflare no longer listed as a DDNS provider after a DSM update](#cloudflare-no-longer-listed-as-a-ddns-provider-after-a-dsm-update)
 * [Default Cloudflare ports](#default-cloudflare-ports)
 
 
@@ -96,20 +96,24 @@ For multiple domains: __subdomain.mydomain.com---vpn.mydomain.com__
 
 ## Troubleshooting and known issues
 
-### Error returned, such as 1020 error; or update attempt not showing in Cloudflare Audit logs?
+### Connection test failed or error returned
+
+This will manifest as either 1020 error; or the update attempt not showing in Cloudflare Audit logs.
+
 That generally means you've not entered something correctly in the DDNS screen for your domain.
 
 Revisit Step 4 in How to install, and make sure everything is correctly entered.
 
 And you can also check your Cloudflare Audit logs to see what - if anything - has made it there with your API key (More information: [Understanding Cloudflare Audit Logs](https://support.cloudflare.com/hc/en-us/articles/115002833612-Understanding-Cloudflare-Audit-Logs). Updates using the API will appear in the Audit logs as a Rec Set action.
 
-## Cloudflare no longer listed as a DDNS provider after a DSM update
+### Cloudflare no longer listed as a DDNS provider after a DSM update
 
 After updates to Synology DSM, you may find the file __/usr/syno/bin/ddns/cloudflare.php__ has been deleted, and __/etc.defaults/ddns_provider.conf__ reset to default settings.
 
 If this occurs, simply repeat the How to install steps above.
 
 ## Default Cloudflare ports
+Source [Identifying network ports compatible with Cloudflare's proxy](https://support.cloudflare.com/hc/en-us/articles/200169156-Identifying-network-ports-compatible-with-Cloudflare-s-proxy)
 
 |HTTP ports supported by Cloudflare  | HTTPS ports supported by Cloudflare |
 |--|--|
@@ -120,3 +124,7 @@ If this occurs, simply repeat the How to install steps above.
 | 2082 | 2096 |
 | 2086 | 8443 | 
 | 2095 | |
+
+## Credits
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
