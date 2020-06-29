@@ -44,8 +44,11 @@ If this occurs, simply repeat the installations steps below.
 Before starting the installation process, make sure you have (and know) the following information, or have completed these steps:
 
  1. *Cloudflare credentials*
+ 
 	 a. Know your Cloudflare account username (or [register for an account if you're new to Cloudflare](https://dash.cloudflare.com/sign-up)); and
+	 
 	 b. Have your [Global API key](https://dash.cloudflare.com/profile/api-tokens) (More info: [Global API keys](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys)).
+	 
  2. *DNS settings:*
 	 Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: [Managing DNS records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare))
 
@@ -89,6 +92,7 @@ Before starting the installation process, make sure you have (and know) the foll
 4. **Update your DDNS settings:** 
 
 	 a. *For DSM Users:* Navigate to __Control Panel > External Access > DDNS__ then add new DDNS
+	 
 	 b. *For SRM users:* Navigate to __Network Centre > Internet > QuickConnect & DDNS > DDNS__ and press the Add button:
 
 	Add/Update the DDNS settings screen as follows:
