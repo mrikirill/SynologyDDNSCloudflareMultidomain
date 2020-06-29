@@ -59,7 +59,9 @@ Before starting the installation process, make sure you have (and know) the foll
 ## How to install
 
 1. **Activate SSH on your supported device:**
+
 	 a. For DSM Users: Navigate to __Control Panel > Terminal & SNMP > Enable SSH service__
+	 
 	 b. For SRM users: Navigate to __Control Panel > Services > System Services > Terminal > Enable SSH service__
 	 
 	![image](example2.png)
