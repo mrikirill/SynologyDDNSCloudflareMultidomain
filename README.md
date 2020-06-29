@@ -5,7 +5,6 @@
 
 * [What this script does](#what-this-script-does)
 * [Before you begin](#before-you-begin)
-* [Example](#example)
 * [How to install](#how-to-install)
 * [Troubleshooting and known issues](#troubleshooting-and-known-issues)
   + [Connection test failed or error returned](#connection-test-failed-or-error-returned)
@@ -31,19 +30,26 @@ Before starting the installation process, make sure you have (and know) the foll
 	 b. Have your [Global API key](https://dash.cloudflare.com/profile/api-tokens) (More info: [Global API keys](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys)).
 	 
  2. *DNS settings:*
-	 Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: [Managing DNS records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare))
+ 
+	Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: [Managing DNS records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare)).
 
-## Example
+	Your DNS records should appear (or already be setup as follows) in Cloudflare:
+	
+	(Note: Having Proxied turned on for your A records isn't necessary, but it will prevent those snooping around from easily finding out your current IP address)
 
-![image](example1.png)
+	![image](example1.png)
 
 ## How to install
 
 1. **Activate SSH on your supported device:**
 
-	 a. For DSM Users: Navigate to __Control Panel > Terminal & SNMP > Enable SSH service__
+	 a. For DSM Users:
 	 
-	 b. For SRM users: Navigate to __Control Panel > Services > System Services > Terminal > Enable SSH service__
+	 Navigate to __Control Panel > Terminal & SNMP > Enable SSH service__
+	 
+	 b. For SRM users:
+	 
+	 Navigate to __Control Panel > Services > System Services > Terminal > Enable SSH service__
 	 
 	![image](example2.png)
 
@@ -70,7 +76,7 @@ Before starting the installation process, make sure you have (and know) the foll
 	  queryurl=https://www.cloudflare.com/
 	 ```
 
-	 Note: For SRM users, break out this [Vim cheat sheet](https://coderwall.com/p/adv71w/basic-vim-commands-for-getting-started), as it's the only text editor available to you.
+	 **Note:** For SRM users, break out this [Vim cheat sheet](https://coderwall.com/p/adv71w/basic-vim-commands-for-getting-started), as it's the only text editor available to you.
  
 4. **Update your DDNS settings:** 
 
@@ -98,19 +104,19 @@ For multiple domains: __subdomain.mydomain.com---vpn.mydomain.com__
 
 ### Connection test failed or error returned
 
-This will manifest as either 1020 error; or the update attempt not showing in Cloudflare Audit logs.
+This will manifest as either 1020 error; or the update attempt not showing in your Cloudflare Audit logs.
 
-That generally means you've not entered something correctly in the DDNS screen for your domain.
+That generally means you may not have entered something correctly in the DDNS screen for your domain(s).
 
-Revisit Step 4 in How to install, and make sure everything is correctly entered.
+Revisit [Before you begin](#before-you-begin) to ensure you have all the right information, then go back to Step 4 in [How to install](#how-to-install) to make sure everything is correctly entered.
 
-And you can also check your Cloudflare Audit logs to see what - if anything - has made it there with your API key (More information: [Understanding Cloudflare Audit Logs](https://support.cloudflare.com/hc/en-us/articles/115002833612-Understanding-Cloudflare-Audit-Logs). Updates using the API will appear in the Audit logs as a Rec Set action.
+**Handy hint:** You can also check your Cloudflare Audit logs to see what - if anything - has made it there with your API key (More information: [Understanding Cloudflare Audit Logs](https://support.cloudflare.com/hc/en-us/articles/115002833612-Understanding-Cloudflare-Audit-Logs)). Updates using the API will appear in the Audit logs as a Rec Set action.
 
 ### Cloudflare no longer listed as a DDNS provider after a DSM update
 
 After updates to Synology DSM, you may find the file __/usr/syno/bin/ddns/cloudflare.php__ has been deleted, and __/etc.defaults/ddns_provider.conf__ reset to default settings.
 
-If this occurs, simply repeat the How to install steps above.
+If this occurs, simply [repeat the How to install steps](#how-to-install) shown above.
 
 ## Default Cloudflare ports
 Source [Identifying network ports compatible with Cloudflare's proxy](https://support.cloudflare.com/hc/en-us/articles/200169156-Identifying-network-ports-compatible-with-Cloudflare-s-proxy)
