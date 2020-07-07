@@ -112,9 +112,12 @@ Revisit [Before you begin](#before-you-begin) to ensure you have all the right i
 
 **Handy hint:** You can also check your Cloudflare Audit logs to see what - if anything - has made it there with your API key (More information: [Understanding Cloudflare Audit Logs](https://support.cloudflare.com/hc/en-us/articles/115002833612-Understanding-Cloudflare-Audit-Logs)). Updates using the API will appear in the Audit logs as a Rec Set action.
 
-### Cloudflare no longer listed as a DDNS provider after a DSM update
+### Cloudflare no longer listed as a DDNS provider after DSM or SRM updates
 
-After updates to Synology DSM, you may find the file __/usr/syno/bin/ddns/cloudflare.php__ has been deleted, and __/etc.defaults/ddns_provider.conf__ reset to default settings.
+After system updates to either Synology DSM or SRM, you may find that:
+* __/usr/syno/bin/ddns/cloudflare.php__ has been deleted;
+* __/etc.defaults/ddns_provider.conf__ was reset to its default settings (settings for Cloudflare no longer included); and
+* The DDNS settings in your DDNS panel constantly show Cloudflare's status as loading.
 
 If this occurs, simply [repeat the How to install steps](#how-to-install) shown above.
 
