@@ -27,8 +27,20 @@ Before starting the installation process, make sure you have (and know) the foll
  
 	 a. Know your Cloudflare account username (or [register for an account if you're new to Cloudflare](https://dash.cloudflare.com/sign-up)); and
 	 
-	 b. Have your [Global API key](https://dash.cloudflare.com/profile/api-tokens) (More info: [Global API keys](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys)).
+	 b. Have your [API key](https://dash.cloudflare.com/profile/api-tokens) - no need to use your Global API key! (More info: [API keys](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys)).
+
+	![image](example4.png)
+
+	 c. Create a API key with following (3) permissions:
 	 
+	 **Zone** > **Zone.Settings** > **Read**  
+	 **Zone** > **Zone** > **Read**  
+	 **Zone** > **DNS** > **Edit**  
+
+	 The affected zone ressouces have to be (at least):
+
+	**Include** > **All zones from an account** > `<domain>`  
+
  2. *DNS settings:*
  
 	Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: [Managing DNS records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare)).
@@ -91,8 +103,8 @@ Before starting the installation process, make sure you have (and know) the foll
  For a single domain: __mydomain.com__
 For multiple domains: __subdomain.mydomain.com---vpn.mydomain.com__
 	(ensure each domain is seperated by three dashes: ---)
-	* Username: The email address you use for logging in to Cloudflare.
-	* Password: Your Cloudflare Global API Key
+	* Username: The email address you use for logging in to Cloudflare (optional since the API key is sufficient)
+	* Password: Your created Cloudflare API Key
 
 	![image](example3.png)
 
@@ -136,4 +148,5 @@ Source [Identifying network ports compatible with Cloudflare's proxy](https://su
 
 ## Credits
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>  
+<small><i><a href='https://www.youtube.com/watch?v=Nf7m3h11y-s'>DB Tech - creating API keys and using Cloudflare CNAME for single updates</a></i></small>
