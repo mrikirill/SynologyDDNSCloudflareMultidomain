@@ -12,7 +12,7 @@ $cf->makeUpdateDNS();
 /**
  * DDNS auto updater for Synology NAS
  * Base on Cloudflare API v4
- * Supports multidomains and sundomains 
+ * Supports multidomains and sundomains
  */
 class updateCFDDNS
 {
@@ -22,10 +22,9 @@ class updateCFDDNS
     function __construct($argv)
     {
         if (count($argv) != 5) {
-            $this->badParam();
+            $this->badParam('wrong parameter count');
         }
 
-        $this->account = (string) $argv[1];
         $this->apiKey = (string) $argv[2]; // CF Global API Key
         $hostname = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
         $this->ip = (string) $argv[4];
@@ -37,7 +36,7 @@ class updateCFDDNS
             $this->badParam('empty host list');
         }
 
-        foreach ($arHost as $value) {          
+        foreach ($arHost as $value) {
             $this->hostList[$value] = [
                 'hostname' => '',
                 'fullname' => $value,
@@ -52,14 +51,14 @@ class updateCFDDNS
             $this->setRecord($arHost['fullname'], $arHost['zoneId']);
         }
     }
-    
+
     /**
      * Update CF DNS records 
      */
     function makeUpdateDNS()
     {
         if(empty($this->hostList)) {
-            $this->badParam();
+            $this->badParam('empty host list');
         }
 
         foreach ($this->hostList as $arHost) {
@@ -93,7 +92,7 @@ class updateCFDDNS
         }
         return true;
     }
- 
+
     /**
      * Set ZoneID for each hosts
      */
@@ -163,7 +162,7 @@ class updateCFDDNS
     function callCFapi($method, $path, $data = []) {
         $options = [
             CURLOPT_URL => self::API_URL . '/' . $path,
-            CURLOPT_HTTPHEADER => ["X-Auth-Email: $this->account", "X-Auth-Key: $this->apiKey", "Content-Type: application/json"],
+            CURLOPT_HTTPHEADER => ["Authorization: Bearer $this->apiKey", "Content-Type: application/json"],
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER => false,
             CURLOPT_VERBOSE => false,
@@ -176,7 +175,7 @@ class updateCFDDNS
         switch($method) {
             case "GET":
                 $options[CURLOPT_HTTPGET] = true;
-            break;    
+            break;
 
             case "POST":
                 $options[CURLOPT_POST] = true;
