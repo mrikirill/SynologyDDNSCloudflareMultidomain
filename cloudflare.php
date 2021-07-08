@@ -29,7 +29,7 @@ class updateCFDDNS
         $hostname = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
         $this->ip = (string) $argv[4];
 
-        $this->validateIpV4($this->ip);
+        $this->validateIp($this->ip);
 
         $arHost = explode('---', $hostname);
         if (empty($arHost)) {
@@ -61,9 +61,9 @@ class updateCFDDNS
             $this->badParam('empty host list');
         }
 
-        foreach ($this->hostList as $arHost) {
+        foreach ($this->hostList as $arHost) {            
             $post = [
-                'type' => 'A',
+                'type' => $this->getZoneTypeByIp($this->ip),
                 'name' => $arHost['fullname'],
                 'content' => $this->ip,
                 'ttl' => 1,
@@ -85,12 +85,23 @@ class updateCFDDNS
         exit();
     }
 
-    function validateIpV4($ip)
+    function validateIp($ip)
     {
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $this->badParam('invalid ip-address, only ipv4');
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            $this->badParam('invalid ip-address');
         }
         return true;
+    }
+
+    /*
+    * IPv4 = zone A, IPv6 = zone AAAA
+    * @link https://www.cloudflare.com/en-au/learning/dns/dns-records/dns-a-record/
+    */
+    function getZoneTypeByIp($ip) {
+        if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            return 'AAAA';
+        }
+        return 'A';        
     }
 
     /**
