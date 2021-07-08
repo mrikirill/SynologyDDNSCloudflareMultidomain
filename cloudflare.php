@@ -27,7 +27,7 @@ class updateCFDDNS
 
         $this->apiKey = (string) $argv[2]; // CF Global API Key
         $hostname = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
-        $this->ip = (string) $argv[4];
+        $this->ip = (string) $this->getIpAddressIpify();
 
         $this->validateIp($this->ip);
 
@@ -91,6 +91,12 @@ class updateCFDDNS
             $this->badParam('invalid ip-address');
         }
         return true;
+    }
+    /*
+    * get ip from ipify.org
+    */
+    function getIpAddressIpify() {
+        return file_get_contents('https://api64.ipify.org');
     }
 
     /*
