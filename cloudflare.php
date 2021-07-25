@@ -18,7 +18,7 @@ class updateCFDDNS
 {
     const API_URL = 'https://api.cloudflare.com';
     var $account, $apiKey, $hostList, $ipv4; // argument properties - $ipv4 is provided by DSM itself
-    var $ip, $ipv6 = false;
+    var $ip, $dnsRecordIdList = array(), $ipv6 = false;
 
     function __construct($argv)
     {
@@ -36,7 +36,7 @@ class updateCFDDNS
         $this->validateIp($this->ip);
 
         // Test addresss:
-//        $this->ipv6 = "2222:7e01::f03c:91ff:fe99:b41d";
+        $this->ipv6 = "2222:7e01::f03c:91ff:fe99:b41d";
 
         // Since DSM is standard providing an IPv4 address, we always rely on what DSM is providing, not externally
         $this->validateIp((string) $argv[4]);
@@ -51,20 +51,16 @@ class updateCFDDNS
                 'hostname' => '',
                 'fullname' => $value,
                 'zoneId' => '',
-                'recordIdA' => '',
-                'recordIdAAAA' => '',
-                'proxied' => true,
-                'A' => false,
-                'AAAA' => false,
+//                'proxied' => true,
             ];
         }
 
         $this->setZones();
 
         foreach ($this->hostList as $arHost) {
-            $this->setRecord($arHost['fullname'], $arHost['zoneId'], 'A');
+            $this->setRecord($arHost, $this->ipv4, 'A');
             if($this->ipv6) {
-                $this->setRecord($arHost['fullname'], $arHost['zoneId'], 'AAAA');
+                $this->setRecord($arHost, $this->ipv6, 'AAAA');
             }
         }
     }
@@ -78,41 +74,59 @@ class updateCFDDNS
             $this->badParam('empty host list');
         }
 
-        foreach ($this->hostList as $arHost) {
-            if($arHost['AAAA']) {
-                $post = [
-                    'type' => 'AAAA',
-                    'name' => $arHost['fullname'],
-                    'content' => $this->ipv6,
-                    'ttl' => 1,
-                    'proxied' => $arHost['proxied'],
-                ];
+        foreach($this->dnsRecordIdList as $recordId => $dnsRecord) {
+            var_dump($dnsRecord);
+            die();
 
-                $json = $this->callCFapi("PATCH", "client/v4/zones/" . $arHost['zoneId'] . "/dns_records/" . $arHost['recordIdAAAA'], $post);
+            $zoneId = $dnsRecord['zoneId'];
+            $type = $dnsRecord['type'];
 
-                if (!$json['success']) {
-                    echo 'Update Record failed';
-                    exit();
-                }
-            }
+            $json = $this->callCFapi("PATCH", "client/v4/zones/${zoneId}/dns_records/${type}", $dnsRecord);
 
-            if($arHost['A']) {
-                $post = [
-                    'type' => 'A',
-                    'name' => $arHost['fullname'],
-                    'content' => $this->ipv4,
-                    'ttl' => 1,
-                    'proxied' => $arHost['proxied'],
-                ];
-
-                $json = $this->callCFapi("PATCH", "client/v4/zones/" . $arHost['zoneId'] . "/dns_records/" . $arHost['recordIdA'], $post);
-
-                if (!$json['success']) {
-                    echo 'Update Record failed';
-                    exit();
-                }
+            if (!$json['success']) {
+                echo 'Update Record failed';
+                exit();
             }
         }
+
+//        foreach ($this->hostList as $arHost) {
+//            // Use $this->dnsRecordIdList instead !!
+//
+//            if($arHost['AAAA']) {
+//                $post = [
+//                    'type' => 'AAAA',
+//                    'name' => $arHost['fullname'],
+//                    'content' => $this->ipv6,
+//                    'ttl' => 1,
+//                    'proxied' => $arHost['proxied'],
+//                ];
+
+//                $json = $this->callCFapi("PATCH", "client/v4/zones/" . $arHost['zoneId'] . "/dns_records/" . $arHost['recordIdAAAA'], $post);
+//
+//                if (!$json['success']) {
+//                    echo 'Update Record failed';
+//                    exit();
+//                }
+//            }
+
+//            if($arHost['A']) {
+//                $post = [
+//                    'type' => 'A',
+//                    'name' => $arHost['fullname'],
+//                    'content' => $this->ipv4,
+//                    'ttl' => 1,
+//                    'proxied' => $arHost['proxied'],
+//                ];
+
+//                $json = $this->callCFapi("PATCH", "client/v4/zones/" . $arHost['zoneId'] . "/dns_records/" . $arHost['recordIdA'], $post);
+//
+//                if (!$json['success']) {
+//                    echo 'Update Record failed';
+//                    exit();
+//                }
+//            }
+//        }
+
         echo "good";
     }
 
@@ -192,16 +206,19 @@ class updateCFDDNS
     /**
      * Set A Records for each host
      */
-    function setRecord($fullname, $zoneId, $type)
+    function setRecord($arHostData, string $ip, $type)
     {
-        if (empty($fullname)) {
+        if (empty($arHostData['fullname'])) {
             return false;
         }
 
-        if (empty($zoneId)) {
+        if (empty($arHostData['zoneId'])) {
             unset($this->hostList[$fullname]);
             return false;
         }
+
+        $zoneId = $arHostData['zoneId'];
+        $fullname = $arHostData['fullname'];
 
         $json = $this->callCFapi("GET", "client/v4/zones/${zoneId}/dns_records?type=${type}&name=${fullname}");
 
@@ -209,17 +226,25 @@ class updateCFDDNS
             $this->badParam('unsuccessful response for getRecord host: ' . $fullname);
         }
 
-        // In case there's an A but no AAAA record set-up (or opposite) on Cloudflare, it may result in an error
+        // In case there's an A but no AAAA record set-up (or opposite) on Cloudflare for this hostname when IPV6
+        // is activated (dual stack), it may result in an error
         if(isset($json['result']['0'])){
-            $this->hostList[$fullname]['proxied'] = $json['result']['0']['proxied'];
-            if($json['result']['0']['type'] === 'AAAA') {
-                $this->hostList[$fullname]['AAAA'] = $this->ipv6;
-                $this->hostList[$fullname]['recordIdAAAA'] = $json['result']['0']['id'];
-            }
-            if($json['result']['0']['type'] === 'A') {
-                $this->hostList[$fullname]['A'] = $this->ipv4;
-                $this->hostList[$fullname]['recordIdA'] = $json['result']['0']['id'];
-            }
+            $this->dnsRecordIdList[$json['result']['0']['id']]['type'] = $type;
+            $this->dnsRecordIdList[$json['result']['0']['id']]['name'] = $arHostData['fullname'];
+            $this->dnsRecordIdList[$json['result']['0']['id']]['content'] = $ip;
+            $this->dnsRecordIdList[$json['result']['0']['id']]['zoneId'] = $arHostData['zoneId'];
+            $this->dnsRecordIdList[$json['result']['0']['id']]['proxied'] = $json['result']['0']['proxied'];
+            $this->dnsRecordIdList[$json['result']['0']['id']]['ttl'] = $json['result']['0']['ttl'];
+
+//            $this->hostList[$fullname]['proxied'] = $json['result']['0']['proxied'];
+//            if($json['result']['0']['type'] === 'AAAA') {
+//                $this->hostList[$fullname]['AAAA'] = $this->ipv6;
+//                $this->hostList[$fullname]['recordIdAAAA'] = $json['result']['0']['id'];
+//            }
+//            if($json['result']['0']['type'] === 'A') {
+//                $this->hostList[$fullname]['A'] = $this->ipv4;
+//                $this->hostList[$fullname]['recordIdA'] = $json['result']['0']['id'];
+//            }
         }
     }
 
