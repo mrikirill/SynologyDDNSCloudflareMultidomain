@@ -2,12 +2,27 @@
 <?php
 
 if ($argc !== 5) {
-    echo 'badparam';
+    echo Output::INSUFFICIENT_OR_UNKNOWN_PARAMETERS;
     exit();
 }
 
 $cf = new updateCFDDNS($argv);
 $cf->makeUpdateDNS();
+
+class Output
+{
+    const SUCCESS = 'good';
+    const NO_CHANGES = 'nochg';
+    const NO_HOST_EXISTS = 'nohost';
+    const HOSTNAME_BLOCKED = 'abuse';
+    const HOSTNAME_IS_NO_DOMAINNAME = 'notfqdn';
+    const AUTHENTICATION_FAILED = 'badauth';
+    const PROVIDER_ERROR = '911';
+    const BAD_HTTP_REQUEST = 'badagent';
+    const PROVIDER_ADDRESS_NOT_RESOLVED = 'badresolv';
+    const PROVIDER_TIMEOUT_CONNECTION = 'badconn';
+    const INSUFFICIENT_OR_UNKNOWN_PARAMETERS = 'badparam';
+}
 
 /**
  * DDNS auto updater for Synology NAS
@@ -85,7 +100,7 @@ class updateCFDDNS
             }
         }
 
-        echo "good";
+        echo Output::SUCCESS;
     }
 
     function badParam($msg = '')
