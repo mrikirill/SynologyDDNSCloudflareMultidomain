@@ -18,7 +18,7 @@
 * Supports single domains, multidomains, subdomains and regional domains, or any combination thereof (example: dev.my.domain.com.au, domain.com.uk etc)
 * Easy instalation process
 * Based on CloudFlare API v4
-* [Supports IPv4 and IPv6](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/pull/13)
+* [Supports dual stack IPv4 and IPv6](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/pull/13)
 
 ## Before you begin
 
