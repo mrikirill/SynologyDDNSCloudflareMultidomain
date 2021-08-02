@@ -170,13 +170,14 @@ class updateCFDDNS
             return false;
         }
 
+        $fullname = $arHostData['fullname'];
+
         if (empty($arHostData['zoneId'])) {
             unset($this->hostList[$fullname]);
             return false;
         }
 
         $zoneId = $arHostData['zoneId'];
-        $fullname = $arHostData['fullname'];
 
         $json = $this->callCFapi("GET", "client/v4/zones/${zoneId}/dns_records?type=${type}&name=${fullname}");
 
