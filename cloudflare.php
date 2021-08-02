@@ -11,17 +11,20 @@ $cf->makeUpdateDNS();
 
 class Output
 {
-    const SUCCESS = 'good';
-    const NO_CHANGES = 'nochg';
-    const NO_HOST_EXISTS = 'nohost';
-    const HOSTNAME_BLOCKED = 'abuse';
-    const HOSTNAME_IS_NO_DOMAINNAME = 'notfqdn';
-    const AUTHENTICATION_FAILED = 'badauth';
-    const PROVIDER_ERROR = '911';
-    const BAD_HTTP_REQUEST = 'badagent';
+    // Confirmed & logged interpreted/translated messages by Synology
+    const SUCCESS = 'good'; // geeft niets? - geeft succesfully registered in logs
+    const NO_CHANGES = 'nochg'; // geeft niets? - geeft succesfully registered in logs
+    const HOSTNAME_DOES_NOT_EXIST = 'nohost'; // [The hostname specified does not exist. Check if you created the hostname on the website of your DNS provider]
+    const HOSTNAME_BLOCKED = 'abuse'; //  [The hostname specified is blocked for update abuse]
+    const HOSTNAME_FORMAT_IS_INCORRECT = 'notfqdn'; // [The format of hostname is not correct]
+    const AUTHENTICATION_FAILED = 'badauth'; // [Authentication failed]
+    const DDNS_PROVIDER_DOWN = '911'; //  [Server is broken][De DDNS-server is tijdelijk buiten dienst. Neem contact op met de Internet-provider.]
+    const BAD_HTTP_REQUEST = 'badagent'; //  [DDNS function needs to be modified, please contact synology support]
+    const HOSTNAME_FORMAT_INCORRECT = 'badparam'; // [The format of hostname is not correct]
+
+    // Not logged messages, didn't work while testing on Synology
     const PROVIDER_ADDRESS_NOT_RESOLVED = 'badresolv';
     const PROVIDER_TIMEOUT_CONNECTION = 'badconn';
-    const INSUFFICIENT_OR_UNKNOWN_PARAMETERS = 'badparam';
 }
 
 /**
@@ -45,15 +48,13 @@ class updateCFDDNS
         $this->apiKey = (string) $argv[2]; // CF Global API Key
         $hostname = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
 
-        // Returns either an IPV4 address when IPV6 is unsupported or not found, either returns an IPV6 address,
-        // in that case extra steps are necessary because in old version IPV4 won't be set any longer which is not ok
-        $this->ip = (string) $this->getIpAddressIpify(); // Can be either IPV4 or IPV6, should serve as IPV6 "detector"
-        $this->validateIp($this->ip);
+        $this->ip = (string) $this->getIpAddressIpify();
+        $this->validateIp($this->ip); // Evaluates either we get IPV4 or IPV6
 
-        // Test addresss:
+        // Test addresss to force-enable IPV6 manually:
 //        $this->ipv6 = "2222:7e01::f03c:91ff:fe99:b41d";
 
-        // Since DSM is standard providing an IPv4 address, we always rely on what DSM is providing, not externally
+        // Since DSM is only providing an IP(v4) address I prefer to rely on what DSM provides for now instead
         $this->validateIp((string) $argv[4]);
 
         $arHost = explode('---', $hostname);
@@ -110,8 +111,8 @@ class updateCFDDNS
     }
 
     /**
-     * Evaluates IP address type and asssigns to the correct IP property type
-     * Only public addresses accessible from the internet are valid
+     * Evaluates IP address type and assigns to the correct IP property type
+     * Only public addresses accessible from the internet are valid options
      *
      * @param $ip
      * @return bool
@@ -129,7 +130,8 @@ class updateCFDDNS
     }
 
     /*
-    * get ip from ipify.org
+    * Get ip from ipify.org
+    * Returns IPV4 address when IPV6 is not supported
     */
     function getIpAddressIpify() {
         return file_get_contents('https://api64.ipify.org');
@@ -142,6 +144,13 @@ class updateCFDDNS
     {
         $json = $this->callCFapi("GET", "client/v4/zones");
         if (!$json['success']) {
+            if(isset($json['errors'][0]['code'])) {
+                if($json['errors'][0]['code'] == 9109 || $json['errors'][0]['code'] == 6003) {
+                    echo Output::AUTHENTICATION_FAILED;
+                    exit();
+                }
+            }
+
             $this->badParam('getZone unsuccessful response');
         }
         $arZones = [];
