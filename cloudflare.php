@@ -25,6 +25,9 @@ class Output
     // Not logged messages, didn't work while testing on Synology
     const PROVIDER_ADDRESS_NOT_RESOLVED = 'badresolv';
     const PROVIDER_TIMEOUT_CONNECTION = 'badconn';
+
+    // Custom console error messages (not triggered by DSM)
+    const INSUFFICIENT_OR_UNKNOWN_PARAMETERS = 'Insufficient parameters';
 }
 
 /**
