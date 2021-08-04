@@ -1,6 +1,7 @@
 #!/usr/bin/php -d open_basedir=/usr/syno/bin/ddns
 <?php
 
+// Normally $argv suffices: $argc seems a bit pointless because amount of arguments & array elements should be same
 if ($argc !== 5 || count($argv) != 5) {
     echo Output::INSUFFICIENT_OR_UNKNOWN_PARAMETERS;
     exit();
@@ -56,6 +57,7 @@ class updateCFDDNS
         // Since DSM is only providing an IP(v4) address (DSM 6/7 doesn't deliver IPV6)
         // I override above IPV4 detection & rely on DSM instead for now
         $this->validateIp((string) $argv[4]);
+
 
         // safer than explode: in case of wrong formatting with --- separations (empty elements removed automatically)
         $arHost = preg_split('/(---)/', $hostnames, -1, PREG_SPLIT_NO_EMPTY);
@@ -130,15 +132,26 @@ class updateCFDDNS
         } else {
             $this->badParam('invalid ip-address');
         }
+
         return true;
     }
 
     /*
     * Get ip from ipify.org
-    * Returns IPV4 address when IPV6 is not supported
+    * Returns IPV6 address or false boolean in case IP6V is not found
     */
     function getIpAddressIpify() {
-        return file_get_contents('https://api64.ipify.org');
+
+        $curlhandle = curl_init();
+        curl_setopt($curlhandle, CURLOPT_URL, "https://api64.ipify.org");
+        curl_setopt($curlhandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
+        curl_setopt($curlhandle, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($curlhandle, CURLOPT_TIMEOUT, 30);
+        curl_setopt($curlhandle, CURLOPT_VERBOSE, false);
+        curl_setopt($curlhandle, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($curlhandle);
+        curl_close($curlhandle);
+        return $result;
     }
 
     /**
