@@ -64,14 +64,12 @@ class updateCFDDNS
         $arHost = preg_split('/(---)/', $hostnames, -1, PREG_SPLIT_NO_EMPTY);
 
         // parse each array element to check if every dns hostname is properly formatted, unset any garbage element
-        foreach ($arHost as $key => $el) {
-            if(!preg_match("/^(?!\-)(?:(?:[a-zA-Z\d][a-zA-Z\d\-]{0,61})?[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/", $el)) {
+        foreach ($arHost as $value) {
+            if(!preg_match("/^(?!\-)(?:(?:[a-zA-Z\d][a-zA-Z\d\-]{0,61})?[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/", $value)) {
                 echo Output::HOSTNAME_FORMAT_INCORRECT;
                 exit();
             }
-        }
 
-        foreach ($arHost as $value) {
             $this->hostList[$value] = [
                 'hostname' => '',
                 'fullname' => $value,
