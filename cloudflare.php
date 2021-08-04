@@ -1,7 +1,7 @@
 #!/usr/bin/php -d open_basedir=/usr/syno/bin/ddns
 <?php
 
-if ($argc !== 5) {
+if ($argc !== 5 || count($argv) != 5) {
     echo Output::INSUFFICIENT_OR_UNKNOWN_PARAMETERS;
     exit();
 }
@@ -22,11 +22,11 @@ class Output
     const BAD_HTTP_REQUEST = 'badagent'; //  [DDNS function needs to be modified, please contact synology support]
     const HOSTNAME_FORMAT_INCORRECT = 'badparam'; // [The format of hostname is not correct]
 
-    // Not logged messages, didn't work while testing on Synology
+    // Not logged messages, didn't trigger/work while testing on DSM
     const PROVIDER_ADDRESS_NOT_RESOLVED = 'badresolv';
     const PROVIDER_TIMEOUT_CONNECTION = 'badconn';
 
-    // Custom console error messages (not triggered by DSM)
+    // Console only - custom error messages (not triggered by DSM)
     const INSUFFICIENT_OR_UNKNOWN_PARAMETERS = 'Insufficient parameters';
 }
 
@@ -43,29 +43,30 @@ class updateCFDDNS
 
     function __construct($argv)
     {
-        // Arguments: account, apikey, hostslist, ipv4 address (DSM 6/7 doesn't deliver IPV6)
-        if (count($argv) != 5) {
-            $this->badParam('wrong parameter count');
-        }
-
+        // Not used: $account ($argv[1]), Used: $apikey ($argv[2]), $hostslist ($argv[3]), $ipv4 ($argv[4])
         $this->apiKey = (string) $argv[2]; // CF Global API Key
-        $hostname = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
+        $hostnames = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
 
         $this->ip = (string) $this->getIpAddressIpify();
-        $this->validateIp($this->ip); // Evaluates either we get IPV4 or IPV6
+        $this->validateIp($this->ip); // Validates or IPV4 or IPV6
 
-        // Test addresss to force-enable IPV6 manually:
+        // Test address to force-enable IPV6 manually to simulate ipv6 "found":
 //        $this->ipv6 = "2222:7e01::f03c:91ff:fe99:b41d";
 
-        // Since DSM is only providing an IP(v4) address I prefer to rely on what DSM provides for now instead
+        // Since DSM is only providing an IP(v4) address (DSM 6/7 doesn't deliver IPV6)
+        // I override above IPV4 detection & rely on DSM instead for now
         $this->validateIp((string) $argv[4]);
 
-        $arHost = explode('---', $hostname);
-        if (empty($arHost)) {
-            $this->badParam('empty host list');
-        }
+        // safer than explode: in case of wrong formatting with --- separations (empty elements removed automatically)
+        $arHost = preg_split('/(---)/', $hostnames, -1, PREG_SPLIT_NO_EMPTY);
 
+        // parse each array element to check if every dns hostname is properly formatted, unset any garbage element
         foreach ($arHost as $value) {
+            if(!preg_match("/^(?!-)(?:(?:[a-zA-Z\d][a-zA-Z\d\-]{0,61})?[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/", $value)) {
+                echo Output::HOSTNAME_FORMAT_INCORRECT;
+                exit();
+            }
+
             $this->hostList[$value] = [
                 'hostname' => '',
                 'fullname' => $value,
