@@ -48,16 +48,17 @@ class updateCFDDNS
         $this->apiKey = (string) $argv[2]; // CF Global API Key
         $hostnames = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
 
-        $this->ip = (string) $this->getIpAddressIpify();
-        $this->validateIp($this->ip); // Validates or IPV4 or IPV6
+        $this->ipv6 = $this->getIpAddressIpify();
+
+        if($this->ipv6)
+            $this->validateIp((string) $this->ipv6); // Validates IPV6
 
         // Test address to force-enable IPV6 manually to simulate ipv6 "found":
-//        $this->ipv6 = "2222:7e01::f03c:91ff:fe99:b41d";
+        //$this->ipv6 = "2222:7e01::f03c:91ff:fe99:b41d";
 
         // Since DSM is only providing an IP(v4) address (DSM 6/7 doesn't deliver IPV6)
         // I override above IPV4 detection & rely on DSM instead for now
         $this->validateIp((string) $argv[4]);
-
 
         // safer than explode: in case of wrong formatting with --- separations (empty elements removed automatically)
         $arHost = preg_split('/(---)/', $hostnames, -1, PREG_SPLIT_NO_EMPTY);
