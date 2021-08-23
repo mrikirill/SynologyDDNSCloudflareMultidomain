@@ -1,13 +1,35 @@
 #!/usr/bin/php -d open_basedir=/usr/syno/bin/ddns
 <?php
 
-if ($argc !== 5) {
-    echo 'badparam';
+// Normally $argv suffices: $argc seems a bit pointless because amount of arguments & array elements should be same
+if ($argc !== 5 || count($argv) != 5) {
+    echo Output::INSUFFICIENT_OR_UNKNOWN_PARAMETERS;
     exit();
 }
 
 $cf = new updateCFDDNS($argv);
 $cf->makeUpdateDNS();
+
+class Output
+{
+    // Confirmed & logged interpreted/translated messages by Synology
+    const SUCCESS = 'good'; // geeft niets? - geeft succesfully registered in logs
+    const NO_CHANGES = 'nochg'; // geeft niets? - geeft succesfully registered in logs
+    const HOSTNAME_DOES_NOT_EXIST = 'nohost'; // [The hostname specified does not exist. Check if you created the hostname on the website of your DNS provider]
+    const HOSTNAME_BLOCKED = 'abuse'; //  [The hostname specified is blocked for update abuse]
+    const HOSTNAME_FORMAT_IS_INCORRECT = 'notfqdn'; // [The format of hostname is not correct]
+    const AUTHENTICATION_FAILED = 'badauth'; // [Authentication failed]
+    const DDNS_PROVIDER_DOWN = '911'; //  [Server is broken][De DDNS-server is tijdelijk buiten dienst. Neem contact op met de Internet-provider.]
+    const BAD_HTTP_REQUEST = 'badagent'; //  [DDNS function needs to be modified, please contact synology support]
+    const HOSTNAME_FORMAT_INCORRECT = 'badparam'; // [The format of hostname is not correct]
+
+    // Not logged messages, didn't trigger/work while testing on DSM
+    const PROVIDER_ADDRESS_NOT_RESOLVED = 'badresolv';
+    const PROVIDER_TIMEOUT_CONNECTION = 'badconn';
+
+    // Console only - custom error messages (not triggered by DSM)
+    const INSUFFICIENT_OR_UNKNOWN_PARAMETERS = 'Insufficient parameters';
+}
 
 /**
  * DDNS auto updater for Synology NAS
@@ -17,43 +39,56 @@ $cf->makeUpdateDNS();
 class updateCFDDNS
 {
     const API_URL = 'https://api.cloudflare.com';
-    var $account, $apiKey, $hostList, $ip;
+    var $account, $apiKey, $hostList, $ipv4; // argument properties - $ipv4 is provided by DSM itself
+    var $ip, $dnsRecordIdList = array(), $ipv6 = false;
 
     function __construct($argv)
     {
-        if (count($argv) != 5) {
-            $this->badParam('wrong parameter count');
-        }
-
+        // Not used: $account ($argv[1]), Used: $apikey ($argv[2]), $hostslist ($argv[3]), $ipv4 ($argv[4])
         $this->apiKey = (string) $argv[2]; // CF Global API Key
-        $hostname = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
-        $this->ip = (string) $this->getIpAddressIpify();
+        $hostnames = (string) $argv[3]; // example: example.com.uk---sundomain.example1.com---example2.com
 
-        $this->validateIp($this->ip);
+        $this->ipv6 = $this->getIpAddressIpify();
 
-        $arHost = explode('---', $hostname);
-        if (empty($arHost)) {
-            $this->badParam('empty host list');
-        }
+        if($this->ipv6)
+            $this->validateIp((string) $this->ipv6); // Validates IPV6
 
+        // Test address to force-enable IPV6 manually to simulate ipv6 "found":
+        //$this->ipv6 = "2222:7e01::f03c:91ff:fe99:b41d";
+
+        // Since DSM is only providing an IP(v4) address (DSM 6/7 doesn't deliver IPV6)
+        // I override above IPV4 detection & rely on DSM instead for now
+        $this->validateIp((string) $argv[4]);
+
+        // safer than explode: in case of wrong formatting with --- separations (empty elements removed automatically)
+        $arHost = preg_split('/(---)/', $hostnames, -1, PREG_SPLIT_NO_EMPTY);
+
+        // parse each array element to check if every dns hostname is properly formatted, unset any garbage element
         foreach ($arHost as $value) {
+            if(!preg_match("/^(?!-)(?:(?:[a-zA-Z\d][a-zA-Z\d\-]{0,61})?[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/", $value)) {
+                echo Output::HOSTNAME_FORMAT_INCORRECT;
+                exit();
+            }
+
             $this->hostList[$value] = [
                 'hostname' => '',
                 'fullname' => $value,
                 'zoneId' => '',
-                'recordId' => '',
-                'proxied' => true,
             ];
         }
 
         $this->setZones();
+
         foreach ($this->hostList as $arHost) {
-            $this->setRecord($arHost['fullname'], $arHost['zoneId']);
+            $this->setRecord($arHost, $this->ipv4, 'A');
+            if($this->ipv6) {
+                $this->setRecord($arHost, $this->ipv6, 'AAAA');
+            }
         }
     }
 
     /**
-     * Update CF DNS records 
+     * Update CF DNS records
      */
     function makeUpdateDNS()
     {
@@ -61,22 +96,19 @@ class updateCFDDNS
             $this->badParam('empty host list');
         }
 
-        foreach ($this->hostList as $arHost) {            
-            $post = [
-                'type' => $this->getZoneTypeByIp($this->ip),
-                'name' => $arHost['fullname'],
-                'content' => $this->ip,
-                'ttl' => 1,
-                'proxied' => $arHost['proxied'],
-            ];
+        foreach($this->dnsRecordIdList as $recordId => $dnsRecord) {
+            $zoneId = $dnsRecord['zoneId'];
+            unset($dnsRecord['zoneId']);
 
-            $json = $this->callCFapi("PUT", "client/v4/zones/" . $arHost['zoneId'] . "/dns_records/" . $arHost['recordId'], $post);
+            $json = $this->callCFapi("PATCH", "client/v4/zones/${zoneId}/dns_records/${recordId}", $dnsRecord);
+
             if (!$json['success']) {
                 echo 'Update Record failed';
                 exit();
             }
         }
-        echo "good";
+
+        echo Output::SUCCESS;
     }
 
     function badParam($msg = '')
@@ -85,29 +117,42 @@ class updateCFDDNS
         exit();
     }
 
+    /**
+     * Evaluates IP address type and assigns to the correct IP property type
+     * Only public addresses accessible from the internet are valid options
+     *
+     * @param $ip
+     * @return bool
+     */
     function validateIp($ip)
     {
-        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )) {
+            $this->ipv6 = $ip;
+        } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )) {
+            $this->ipv4 = $ip;
+        } else {
             $this->badParam('invalid ip-address');
         }
+
         return true;
-    }
-    /*
-    * get ip from ipify.org
-    */
-    function getIpAddressIpify() {
-        return file_get_contents('https://api64.ipify.org');
     }
 
     /*
-    * IPv4 = zone A, IPv6 = zone AAAA
-    * @link https://www.cloudflare.com/en-au/learning/dns/dns-records/dns-a-record/
+    * Get ip from ipify.org
+    * Returns IPV6 address or false boolean in case IP6V is not found
     */
-    function getZoneTypeByIp($ip) {
-        if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            return 'AAAA';
-        }
-        return 'A';        
+    function getIpAddressIpify() {
+
+        $curlhandle = curl_init();
+        curl_setopt($curlhandle, CURLOPT_URL, "https://api64.ipify.org");
+        curl_setopt($curlhandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
+        curl_setopt($curlhandle, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($curlhandle, CURLOPT_TIMEOUT, 30);
+        curl_setopt($curlhandle, CURLOPT_VERBOSE, false);
+        curl_setopt($curlhandle, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($curlhandle);
+        curl_close($curlhandle);
+        return $result;
     }
 
     /**
@@ -117,6 +162,13 @@ class updateCFDDNS
     {
         $json = $this->callCFapi("GET", "client/v4/zones");
         if (!$json['success']) {
+            if(isset($json['errors'][0]['code'])) {
+                if($json['errors'][0]['code'] == 9109 || $json['errors'][0]['code'] == 6003) {
+                    echo Output::AUTHENTICATION_FAILED;
+                    exit();
+                }
+            }
+
             $this->badParam('getZone unsuccessful response');
         }
         $arZones = [];
@@ -152,25 +204,37 @@ class updateCFDDNS
     }
 
     /**
-     * Set Records for each hosts
+     * Set A Records for each host
      */
-    function setRecord($fullname, $zoneId)
+    function setRecord($arHostData, string $ip, $type)
     {
-        if (empty($fullname)) {
+        if (empty($arHostData['fullname'])) {
             return false;
         }
 
-        if (empty($zoneId)) {
+        $fullname = $arHostData['fullname'];
+
+        if (empty($arHostData['zoneId'])) {
             unset($this->hostList[$fullname]);
             return false;
         }
 
-        $json = $this->callCFapi("GET", "client/v4/zones/${zoneId}/dns_records?type=A&name=${fullname}");
+        $zoneId = $arHostData['zoneId'];
+
+        $json = $this->callCFapi("GET", "client/v4/zones/${zoneId}/dns_records?type=${type}&name=${fullname}");
+
         if (!$json['success']) {
             $this->badParam('unsuccessful response for getRecord host: ' . $fullname);
         }
-        $this->hostList[$fullname]['recordId'] = $json['result']['0']['id'];
-        $this->hostList[$fullname]['proxied'] = $json['result']['0']['proxied'];
+
+        if(isset($json['result']['0'])){
+            $this->dnsRecordIdList[$json['result']['0']['id']]['type'] = $type;
+            $this->dnsRecordIdList[$json['result']['0']['id']]['name'] = $arHostData['fullname'];
+            $this->dnsRecordIdList[$json['result']['0']['id']]['content'] = $ip;
+            $this->dnsRecordIdList[$json['result']['0']['id']]['zoneId'] = $arHostData['zoneId'];
+            $this->dnsRecordIdList[$json['result']['0']['id']]['ttl'] = $json['result']['0']['ttl'];
+            $this->dnsRecordIdList[$json['result']['0']['id']]['proxied'] = $json['result']['0']['proxied'];
+        }
     }
 
     /**
@@ -192,20 +256,26 @@ class updateCFDDNS
         switch($method) {
             case "GET":
                 $options[CURLOPT_HTTPGET] = true;
-            break;
+                break;
 
             case "POST":
                 $options[CURLOPT_POST] = true;
                 $options[CURLOPT_HTTPGET] = false;
                 $options[CURLOPT_POSTFIELDS] = json_encode($data);
-            break;
+                break;
 
             case "PUT":
                 $options[CURLOPT_POST] = false;
                 $options[CURLOPT_HTTPGET] = false;
                 $options[CURLOPT_CUSTOMREQUEST] = "PUT";
                 $options[CURLOPT_POSTFIELDS] = json_encode($data);
-            break;
+                break;
+            case "PATCH":
+                $options[CURLOPT_POST] = false;
+                $options[CURLOPT_HTTPGET] = false;
+                $options[CURLOPT_CUSTOMREQUEST] = "PATCH";
+                $options[CURLOPT_POSTFIELDS] = json_encode($data);
+                break;
         }
 
         $req = curl_init();
