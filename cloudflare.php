@@ -94,7 +94,8 @@ class updateCFDDNS
     *
     * @return bool
     */
-    function isCFTokenValid() {
+    function isCFTokenValid()
+    {
         $res = $this->callCFapi("GET", "client/v4/user/tokens/verify");
         if ($res['success']) {
             return true;
@@ -118,7 +119,7 @@ class updateCFDDNS
             $json = $this->callCFapi("PATCH", "client/v4/zones/${zoneId}/dns_records/${recordId}", $dnsRecord);
 
             if (!$json['success']) {
-                echo Output::BAD_HTTP_REQUEST
+                echo Output::BAD_HTTP_REQUEST;
                 exit();
             }
         }
@@ -128,7 +129,7 @@ class updateCFDDNS
 
     function badParam($msg = '')
     {
-        echo (strlen($msg) > 0) ? $msg : echo Output::BAD_PARAMS;
+        echo (strlen($msg) > 0) ? $msg : Output::BAD_PARAMS;
         exit();
     }
 
@@ -207,7 +208,8 @@ class updateCFDDNS
      * Find hostname for full domain name
      * example: domain.com.uk --> vpn.domain.com.uk
      */
-    function isZonesContainFullname($arZones, $fullname){
+    function isZonesContainFullname($arZones, $fullname)
+    {
         $res = [];
         foreach($arZones as $arZone) {
             if (strpos($fullname, $arZone['hostname']) !== false) {
@@ -255,7 +257,8 @@ class updateCFDDNS
     /**
      * Call CloudFlare v4 API @link https://api.cloudflare.com/#getting-started-endpoints
      */
-    function callCFapi($method, $path, $data = []) {
+    function callCFapi($method, $path, $data = []) 
+    {
         $options = [
             CURLOPT_URL => self::API_URL . '/' . $path,
             CURLOPT_HTTPHEADER => ["Authorization: Bearer $this->apiKey", "Content-Type: application/json"],

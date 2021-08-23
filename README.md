@@ -10,6 +10,7 @@
   + [Connection test failed or error returned](#connection-test-failed-or-error-returned)
   + [Cloudflare no longer listed as a DDNS provider after a DSM update](#cloudflare-no-longer-listed-as-a-ddns-provider-after-a-dsm-update)
 * [Default Cloudflare ports](#default-cloudflare-ports)
+* [Debug script](#debug)
 
 
 ## What this script does
@@ -146,6 +147,20 @@ Source [Identifying network ports compatible with Cloudflare's proxy](https://su
 | 2082 | 2096 |
 | 2086 | 8443 | 
 | 2095 | |
+
+## Debug
+
+You can run this script directly to see output logs
+
+* SSH into your Synology system 
+
+* Run this command: 
+
+```
+/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "" "your-CloudFlare-token" "your---domains---divided---by---dashes" "ip-address"
+```
+
+* Check output logs
 
 ## Credits
 
