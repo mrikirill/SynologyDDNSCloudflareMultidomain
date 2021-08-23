@@ -22,7 +22,7 @@ class Output
     const DDNS_PROVIDER_DOWN = '911'; //  [Server is broken][De DDNS-server is tijdelijk buiten dienst. Neem contact op met de Internet-provider.]
     const BAD_HTTP_REQUEST = 'badagent'; //  [DDNS function needs to be modified, please contact synology support]
     const HOSTNAME_FORMAT_INCORRECT = 'badparam'; // [The format of hostname is not correct]
-
+    const BAD_PARAMS = 'badparam';
     // Not logged messages, didn't trigger/work while testing on DSM
     const PROVIDER_ADDRESS_NOT_RESOLVED = 'badresolv';
     const PROVIDER_TIMEOUT_CONNECTION = 'badconn';
@@ -53,12 +53,14 @@ class updateCFDDNS
         if($this->ipv6)
             $this->validateIp((string) $this->ipv6); // Validates IPV6
 
-        // Test address to force-enable IPV6 manually to simulate ipv6 "found":
-        //$this->ipv6 = "2222:7e01::f03c:91ff:fe99:b41d";
-
         // Since DSM is only providing an IP(v4) address (DSM 6/7 doesn't deliver IPV6)
         // I override above IPV4 detection & rely on DSM instead for now
         $this->validateIp((string) $argv[4]);
+        
+        // Before runs DNS update checks API token is valid or not
+        if(!$this->isCFTokenValid()) {
+           $this->badParam();
+        }
 
         // safer than explode: in case of wrong formatting with --- separations (empty elements removed automatically)
         $arHost = preg_split('/(---)/', $hostnames, -1, PREG_SPLIT_NO_EMPTY);
@@ -86,6 +88,19 @@ class updateCFDDNS
             }
         }
     }
+    
+    /**
+    * Checks CF API Token is valid
+    *
+    * @return bool
+    */
+    function isCFTokenValid() {
+        $res = $this->callCFapi("GET", "client/v4/user/tokens/verify");
+        if ($res['success']) {
+            return true;
+        }
+        return false;
+    }    
 
     /**
      * Update CF DNS records
@@ -103,7 +118,7 @@ class updateCFDDNS
             $json = $this->callCFapi("PATCH", "client/v4/zones/${zoneId}/dns_records/${recordId}", $dnsRecord);
 
             if (!$json['success']) {
-                echo 'Update Record failed';
+                echo Output::BAD_HTTP_REQUEST
                 exit();
             }
         }
@@ -113,7 +128,7 @@ class updateCFDDNS
 
     function badParam($msg = '')
     {
-        echo (strlen($msg) > 0) ? $msg : 'badparam';
+        echo (strlen($msg) > 0) ? $msg : echo Output::BAD_PARAMS;
         exit();
     }
 
