@@ -223,7 +223,7 @@ class updateCFDDNS
     /**
      * Set A Records for each host
      */
-    function setRecord($arHostData, string $ip, $type)
+    function setRecord($arHostData, $ip, $type)
     {
         if (empty($arHostData['fullname'])) {
             return false;
