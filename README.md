@@ -25,7 +25,7 @@
 
 Before starting the installation process, make sure you have (and know) the following information, or have completed these steps:
 
- 1. *Cloudflare credentials*
+ 1. *Cloudflare credentials:*
  
 	 a. Know your Cloudflare account username (or [register for an account if you're new to Cloudflare](https://dash.cloudflare.com/sign-up)); and
 	 
@@ -52,10 +52,23 @@ Before starting the installation process, make sure you have (and know) the foll
 	(Note: Having Proxied turned on for your A records isn't necessary, but it will prevent those snooping around from easily finding out your current IP address)
 
 	![image](example1.png)
+	
+3. *SSH access to your Synology device:*
+
+If you haven't setup this access, see the following Synology Knowledge Base article:
+[How can I sign in to DSM/SRM with root privilege via SSH?[(https://kb.synology.com/en-id/DSM/tutorial/How_to_login_to_DSM_with_root_permission_via_SSH_Telnet)
+
+4. *SRM users: Knowledge of vi:*
+
+vi is the only text editor available within the [Busybox](https://linux.die.net/man/1/busybox) environment available at the SSH command line on devices running SRM.
+
+For assistance with vi commands, see:
+[Basic vi commands](https://www.cs.colostate.edu/helpdocs/vi.html)
+
 
 ## How to install
 
-1. **Activate SSH on your supported device:**
+1. **SSH with root privledges on your supported device:**
 
 	 a. For DSM Users:
 	 
@@ -82,7 +95,7 @@ Before starting the installation process, make sure you have (and know) the foll
 
 	**Note:** For SRM users, you must connect to your device as root. No other username will allow these commands to run.
 
-3. **Update DDNS provider list:** Using your preferred/available command line editor, insert the text below to your DMS file (Location : __/etc.defaults/ddns_provider.conf__), to add DDNS support via Cloudflare:
+3. **Update DDNS provider list:** Using a command line editor, insert the text below to your DMS file (Location : __/etc.defaults/ddns_provider.conf__), to add DDNS support via Cloudflare:
 
 	```
 	[Cloudflare]
