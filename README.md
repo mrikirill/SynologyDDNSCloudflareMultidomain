@@ -118,6 +118,8 @@ For assistance with vi commands, see:
  For a single domain: __mydomain.com__
 For multiple domains: __subdomain.mydomain.com---vpn.mydomain.com__
 	(ensure each domain is seperated by three dashes: ---)
+    
+        __Note: there is 128 symbols limit on Hostname input__
 	* Username: The email address you use for logging in to Cloudflare (optional since the API key is sufficient)
 	* Password: Your created Cloudflare API Key
 
