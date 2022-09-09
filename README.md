@@ -7,8 +7,9 @@
 * [Before you begin](#before-you-begin)
 * [How to install](#how-to-install)
 * [Troubleshooting and known issues](#troubleshooting-and-known-issues)
+  + [CloudFlare API free domains limitation](#cloudflare-api-free-domains-limitation)
   + [Connection test failed or error returned](#connection-test-failed-or-error-returned)
-  + [Cloudflare no longer listed as a DDNS provider after a DSM update](#cloudflare-no-longer-listed-as-a-ddns-provider-after-a-dsm-update)
+  + [Cloudflare no longer listed as a DDNS provider after a DSM update](#cloudflare-no-longer-listed-as-a-ddns-provider-after-dsm-or-srm-updates)
 * [Default Cloudflare ports](#default-cloudflare-ports)
 * [Debug script](#debug)
 
@@ -130,6 +131,28 @@ For multiple domains: __subdomain.mydomain.com---vpn.mydomain.com__
 5. Enjoy 🍺 and __don't forget to deactivate SSH (step 1) if you don't need it__.
 
 ## Troubleshooting and known issues
+
+### CloudFlare API free domains limitation
+
+CloudFlare API doesn't support domains with a .cf, .ga, .gq, .ml, or .tk TLD (top-level domain)
+
+For more details read here: https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/issues/28 and https://community.cloudflare.com/t/unable-to-update-ddns-using-api-for-some-tlds/167228/61
+
+Response example:
+
+```
+{
+  "result": null,
+  "success": false,
+  "errors": [
+    {
+      "code": 1038,
+      "message": "You cannot use this API for domains with a .cf, .ga, .gq, .ml, or .tk TLD (top-level domain). To configure the DNS settings for this domain, use the Cloudflare Dashboard."
+    }
+  ],
+  "messages": []
+}
+```
 
 ### Connection test failed or error returned
 
