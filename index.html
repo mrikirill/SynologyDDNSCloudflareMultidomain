@@ -1,0 +1,701 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="DDNS Cloudflare service provider with multidomains and subdomains for Synology NAS">
+      
+      
+        <meta name="author" content="mrikirill">
+      
+      
+        <link rel="canonical" href="https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/">
+      
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.1.21">
+    
+    
+      
+        <title>SynologyDDNSCloudflareMultidomain Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.eebd395e.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#synology-dynamic-dns-with-cloudflare-for-both-multidomains-and-subdomains" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="SynologyDDNSCloudflareMultidomain Documentation" class="md-header__button md-logo" aria-label="SynologyDDNSCloudflareMultidomain Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SynologyDDNSCloudflareMultidomain Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Synology Dynamic DNS with Cloudflare for both multidomains and subdomains
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="SynologyDDNSCloudflareMultidomain Documentation" class="md-nav__button md-logo" aria-label="SynologyDDNSCloudflareMultidomain Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    SynologyDDNSCloudflareMultidomain Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Synology Dynamic DNS with Cloudflare for both multidomains and subdomains
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        Synology Dynamic DNS with Cloudflare for both multidomains and subdomains
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    Table of contents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-script-does" class="md-nav__link">
+    What this script does
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-begin" class="md-nav__link">
+    Before you begin
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-install" class="md-nav__link">
+    How to install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-and-known-issues" class="md-nav__link">
+    Troubleshooting and known issues
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting and known issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloudflare-api-free-domains-limitation" class="md-nav__link">
+    CloudFlare API free domains limitation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connection-test-failed-or-error-returned" class="md-nav__link">
+    Connection test failed or error returned
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloudflare-no-longer-listed-as-a-ddns-provider-after-dsm-or-srm-updates" class="md-nav__link">
+    Cloudflare no longer listed as a DDNS provider after DSM or SRM updates
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-cloudflare-ports" class="md-nav__link">
+    Default Cloudflare ports
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug" class="md-nav__link">
+    Debug
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#credits" class="md-nav__link">
+    Credits
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    Table of contents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-script-does" class="md-nav__link">
+    What this script does
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-begin" class="md-nav__link">
+    Before you begin
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-install" class="md-nav__link">
+    How to install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-and-known-issues" class="md-nav__link">
+    Troubleshooting and known issues
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting and known issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloudflare-api-free-domains-limitation" class="md-nav__link">
+    CloudFlare API free domains limitation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connection-test-failed-or-error-returned" class="md-nav__link">
+    Connection test failed or error returned
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloudflare-no-longer-listed-as-a-ddns-provider-after-dsm-or-srm-updates" class="md-nav__link">
+    Cloudflare no longer listed as a DDNS provider after DSM or SRM updates
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-cloudflare-ports" class="md-nav__link">
+    Default Cloudflare ports
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug" class="md-nav__link">
+    Debug
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#credits" class="md-nav__link">
+    Credits
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="synology-dynamic-dns-with-cloudflare-for-both-multidomains-and-subdomains">Synology Dynamic DNS with Cloudflare for both multidomains and subdomains</h1>
+<h2 id="table-of-contents">Table of contents</h2>
+<ul>
+<li><a href="#what-this-script-does">What this script does</a></li>
+<li><a href="#before-you-begin">Before you begin</a></li>
+<li><a href="#how-to-install">How to install</a></li>
+<li><a href="#troubleshooting-and-known-issues">Troubleshooting and known issues</a></li>
+<li><a href="#cloudflare-api-free-domains-limitation">CloudFlare API free domains limitation</a></li>
+<li><a href="#connection-test-failed-or-error-returned">Connection test failed or error returned</a></li>
+<li><a href="#cloudflare-no-longer-listed-as-a-ddns-provider-after-dsm-or-srm-updates">Cloudflare no longer listed as a DDNS provider after a DSM update</a></li>
+<li><a href="#default-cloudflare-ports">Default Cloudflare ports</a></li>
+<li><a href="#debug">Debug script</a></li>
+</ul>
+<h2 id="what-this-script-does">What this script does</h2>
+<ul>
+<li>A PHP script for Synology DSM (and potentially Synology SRM devices) adding support for Cloudflare to Network Centre &gt; Dynamic DNS (DDNS).</li>
+<li>Supports single domains, multidomains, subdomains and regional domains, or any combination thereof (example: dev.my.domain.com.au, domain.com.uk etc)</li>
+<li>Easy instalation process</li>
+<li>Based on CloudFlare API v4</li>
+<li><a href="https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/pull/13">Supports dual stack IPv4 and IPv6</a></li>
+</ul>
+<h2 id="before-you-begin">Before you begin</h2>
+<p>Before starting the installation process, make sure you have (and know) the following information, or have completed these steps:</p>
+<ol>
+<li>
+<p><em>Cloudflare credentials:</em></p>
+<p>a. Know your Cloudflare account username (or <a href="https://dash.cloudflare.com/sign-up">register for an account if you're new to Cloudflare</a>); and</p>
+<p>b. Have your <a href="https://dash.cloudflare.com/profile/api-tokens">API key</a> - no need to use your Global API key! (More info: <a href="https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys">API keys</a>).</p>
+<p><img alt="image" src="example4.png" /></p>
+<p>c. Create a API key with following (3) permissions:</p>
+<p><strong>Zone</strong> &gt; <strong>Zone.Settings</strong> &gt; <strong>Read</strong><br />
+<strong>Zone</strong> &gt; <strong>Zone</strong> &gt; <strong>Read</strong><br />
+<strong>Zone</strong> &gt; <strong>DNS</strong> &gt; <strong>Edit</strong>  </p>
+<p>The affected zone ressouces have to be (at least):</p>
+<p><strong>Include</strong> &gt; <strong>All zones from an account</strong> &gt; <code>&lt;domain&gt;</code>  </p>
+</li>
+<li>
+<p><em>DNS settings:</em></p>
+<p>Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: <a href="https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare">Managing DNS records</a>).</p>
+<p>Your DNS records should appear (or already be setup as follows) in Cloudflare:</p>
+<p>(Note: Having Proxied turned on for your A records isn't necessary, but it will prevent those snooping around from easily finding out your current IP address)</p>
+<p><img alt="image" src="example1.png" /></p>
+</li>
+<li>
+<p><em>SSH access to your Synology device:</em></p>
+</li>
+</ol>
+<p>If you haven't setup this access, see the following Synology Knowledge Base article:
+[How can I sign in to DSM/SRM with root privilege via SSH?[(https://kb.synology.com/en-id/DSM/tutorial/How_to_login_to_DSM_with_root_permission_via_SSH_Telnet)</p>
+<ol>
+<li><em>SRM users: Knowledge of vi:</em></li>
+</ol>
+<p>vi is the only text editor available within the <a href="https://linux.die.net/man/1/busybox">Busybox</a> environment available at the SSH command line on devices running SRM.</p>
+<p>For assistance with vi commands, see:
+<a href="https://www.cs.colostate.edu/helpdocs/vi.html">Basic vi commands</a></p>
+<h2 id="how-to-install">How to install</h2>
+<ol>
+<li>
+<p><strong>SSH with root privledges on your supported device:</strong></p>
+<p>a. For DSM Users:</p>
+<p>Navigate to <strong>Control Panel &gt; Terminal &amp; SNMP &gt; Enable SSH service</strong></p>
+<p>b. For SRM users:</p>
+<p>Navigate to <strong>Control Panel &gt; Services &gt; System Services &gt; Terminal &gt; Enable SSH service</strong></p>
+<p><img alt="image" src="example2.png" /></p>
+</li>
+<li>
+<p><strong>Connect via SSH:</strong> Connect to your supported device via SSH and execute command</p>
+</li>
+<li>
+<p>For DSM Users
+  <code>wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/cloudflare.php -O /usr/syno/bin/ddns/cloudflare.php &amp;&amp; sudo chmod 755 /usr/syno/bin/ddns/cloudflare.php</code></p>
+</li>
+<li>
+<p>For SRM Users
+  Note: Ensure you are connected as root in your SSH session
+  <code>wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/cloudflare.php -O /usr/syno/bin/ddns/cloudflare.php &amp;&amp; chmod 755 /usr/syno/bin/ddns/cloudflare.php</code></p>
+<p><strong>Note:</strong> For SRM users, you must connect to your device as root. No other username will allow these commands to run.</p>
+</li>
+<li>
+<p><strong>Update DDNS provider list:</strong> Using a command line editor, insert the text below to your DMS file (Location : <strong>/etc.defaults/ddns_provider.conf</strong>), to add DDNS support via Cloudflare:</p>
+<p><code>[Cloudflare]
+  modulepath=/usr/syno/bin/ddns/cloudflare.php
+  queryurl=https://www.cloudflare.com/</code></p>
+<p><strong>Note:</strong> For SRM users, break out this <a href="https://coderwall.com/p/adv71w/basic-vim-commands-for-getting-started">Vim cheat sheet</a>, as it's the only text editor available to you.</p>
+</li>
+<li>
+<p><strong>Update your DDNS settings:</strong> </p>
+<p>a. <em>For DSM Users:</em> Navigate to <strong>Control Panel &gt; External Access &gt; DDNS</strong> then add new DDNS</p>
+<p>b. <em>For SRM users:</em> Navigate to <strong>Network Centre &gt; Internet &gt; QuickConnect &amp; DDNS &gt; DDNS</strong> and press the Add button:</p>
+<p>Add/Update the DDNS settings screen as follows:</p>
+<ul>
+<li>Service provider: Select Cloudflare</li>
+<li>
+<p>Hostname:
+ For a single domain: <strong>mydomain.com</strong>
+For multiple domains: <strong>subdomain.mydomain.com---vpn.mydomain.com</strong>
+(ensure each domain is seperated by three dashes: ---)</p>
+<p><strong>Note: there is 128 symbols limit on Hostname input</strong>
+    * Username: The email address you use for logging in to Cloudflare (optional since the API key is sufficient)
+    * Password: Your created Cloudflare API Key</p>
+</li>
+</ul>
+<p><img alt="image" src="example3.png" /></p>
+<p>Finally, press the test connection button to confirm all information is correctly entered, before pressing Ok to save and confirm your details.</p>
+</li>
+<li>
+<p>Enjoy 🍺 and <strong>don't forget to deactivate SSH (step 1) if you don't need it</strong>.</p>
+</li>
+</ol>
+<h2 id="troubleshooting-and-known-issues">Troubleshooting and known issues</h2>
+<h3 id="cloudflare-api-free-domains-limitation">CloudFlare API free domains limitation</h3>
+<p>CloudFlare API doesn't support domains with a .cf, .ga, .gq, .ml, or .tk TLD (top-level domain)</p>
+<p>For more details read here: https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/issues/28 and https://community.cloudflare.com/t/unable-to-update-ddns-using-api-for-some-tlds/167228/61</p>
+<p>Response example:</p>
+<pre><code>{
+  &quot;result&quot;: null,
+  &quot;success&quot;: false,
+  &quot;errors&quot;: [
+    {
+      &quot;code&quot;: 1038,
+      &quot;message&quot;: &quot;You cannot use this API for domains with a .cf, .ga, .gq, .ml, or .tk TLD (top-level domain). To configure the DNS settings for this domain, use the Cloudflare Dashboard.&quot;
+    }
+  ],
+  &quot;messages&quot;: []
+}
+</code></pre>
+<h3 id="connection-test-failed-or-error-returned">Connection test failed or error returned</h3>
+<p>This will manifest as either 1020 error; or the update attempt not showing in your Cloudflare Audit logs.</p>
+<p>That generally means you may not have entered something correctly in the DDNS screen for your domain(s).</p>
+<p>Revisit <a href="#before-you-begin">Before you begin</a> to ensure you have all the right information, then go back to Step 4 in <a href="#how-to-install">How to install</a> to make sure everything is correctly entered.</p>
+<p><strong>Handy hint:</strong> You can also check your Cloudflare Audit logs to see what - if anything - has made it there with your API key (More information: <a href="https://support.cloudflare.com/hc/en-us/articles/115002833612-Understanding-Cloudflare-Audit-Logs">Understanding Cloudflare Audit Logs</a>). Updates using the API will appear in the Audit logs as a Rec Set action.</p>
+<h3 id="cloudflare-no-longer-listed-as-a-ddns-provider-after-dsm-or-srm-updates">Cloudflare no longer listed as a DDNS provider after DSM or SRM updates</h3>
+<p>After system updates to either Synology DSM or SRM, you may find that:
+* <strong>/usr/syno/bin/ddns/cloudflare.php</strong> has been deleted;
+* <strong>/etc.defaults/ddns_provider.conf</strong> was reset to its default settings (settings for Cloudflare no longer included); and
+* The DDNS settings in your DDNS panel constantly show Cloudflare's status as loading.</p>
+<p>If this occurs, simply <a href="#how-to-install">repeat the How to install steps</a> shown above.</p>
+<h2 id="default-cloudflare-ports">Default Cloudflare ports</h2>
+<p>Source <a href="https://support.cloudflare.com/hc/en-us/articles/200169156-Identifying-network-ports-compatible-with-Cloudflare-s-proxy">Identifying network ports compatible with Cloudflare's proxy</a></p>
+<table>
+<thead>
+<tr>
+<th>HTTP ports supported by Cloudflare</th>
+<th>HTTPS ports supported by Cloudflare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>80</td>
+<td>443</td>
+</tr>
+<tr>
+<td>8080</td>
+<td>2053</td>
+</tr>
+<tr>
+<td>8880</td>
+<td>2083</td>
+</tr>
+<tr>
+<td>2052</td>
+<td>2087</td>
+</tr>
+<tr>
+<td>2082</td>
+<td>2096</td>
+</tr>
+<tr>
+<td>2086</td>
+<td>8443</td>
+</tr>
+<tr>
+<td>2095</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="debug">Debug</h2>
+<p>You can run this script directly to see output logs</p>
+<ul>
+<li>
+<p>SSH into your Synology system </p>
+</li>
+<li>
+<p>Run this command: </p>
+</li>
+</ul>
+<pre><code>/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php &quot;&quot; &quot;your-CloudFlare-token&quot; &quot;your---domains---divided---by---dashes&quot; &quot;ip-address&quot;
+</code></pre>
+<ul>
+<li>Check output logs</li>
+</ul>
+<h2 id="credits">Credits</h2>
+<p><small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small><br />
+<small><i><a href='https://www.youtube.com/watch?v=Nf7m3h11y-s'>DB Tech - creating API keys and using Cloudflare CNAME for single updates</a></i></small></p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.220ee61c.min.js"></script>
+      
+    
+  </body>
+</html>
