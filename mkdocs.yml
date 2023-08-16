@@ -1,0 +1,7 @@
+site_name: SynologyDDNSCloudflareMultidomain Documentation
+site_url: https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain
+repo_url: https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain
+site_author: mrikirill
+site_description: DDNS Cloudflare service provider with multidomains and subdomains for Synology NAS
+theme:
+  name: material
