@@ -34,7 +34,8 @@ Before starting the installation process, make sure you have (and know) the foll
 	 
 	 b. Have your [API key](https://dash.cloudflare.com/profile/api-tokens) - no need to use your Global API key! (More info: [API keys](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys)).
 
-	![image](example4.png)
+	![image](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/blob/master/docs/example4.png)
+
 
 	 c. Create a API key with following (3) permissions:
 	 
@@ -46,7 +47,7 @@ Before starting the installation process, make sure you have (and know) the foll
 
 	**Include** > **All zones from an account** > `<domain>`  
 
- 2. *DNS settings:*
+ 3. *DNS settings:*
  
 	Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: [Managing DNS records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare)).
 
@@ -54,9 +55,9 @@ Before starting the installation process, make sure you have (and know) the foll
 	
 	(Note: Having Proxied turned on for your A records isn't necessary, but it will prevent those snooping around from easily finding out your current IP address)
 
-	![image](example1.png)
+	![image](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/blob/master/docs/example1.png)
 	
-3. *SSH access to your Synology device:*
+4. *SSH access to your Synology device:*
 
 If you haven't setup this access, see the following Synology Knowledge Base article:
 [How can I sign in to DSM/SRM with root privilege via SSH?[(https://kb.synology.com/en-id/DSM/tutorial/How_to_login_to_DSM_with_root_permission_via_SSH_Telnet)
@@ -81,7 +82,7 @@ For assistance with vi commands, see:
 	 
 	 Navigate to __Control Panel > Services > System Services > Terminal > Enable SSH service__
 	 
-	![image](example2.png)
+	![image](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/blob/master/docs/example2.png)
 
 2. **Connect via SSH:** Connect to your supported device via SSH and execute command
 
@@ -126,7 +127,7 @@ For multiple domains: __subdomain.mydomain.com---vpn.mydomain.com__
 	* Username: The email address you use for logging in to Cloudflare (optional since the API key is sufficient)
 	* Password: Your created Cloudflare API Key
 
-	![image](example3.png)
+	![image](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/blob/master/docs/example3.png)
 
 	Finally, press the test connection button to confirm all information is correctly entered, before pressing Ok to save and confirm your details.
 
