@@ -5,9 +5,10 @@
 
 ## Table of contents
 
+* 🆕 [What is new](#what-is-new)
 * [What this script does](#what-this-script-does)
 * [Before you begin](#before-you-begin)
-* [How to install](#how-to-install)
+* 🆕 [How to install](#how-to-install)
 * [Troubleshooting and known issues](#troubleshooting-and-known-issues)
   + [CloudFlare API free domains limitation](#cloudflare-api-free-domains-limitation)
   + [Connection test failed or error returned](#connection-test-failed-or-error-returned)
@@ -15,12 +16,19 @@
 * [Default Cloudflare ports](#default-cloudflare-ports)
 * [Debug script](#debug)
 
+## What is new
+
+- 🆕 New hostname input format: `subdomain1.mydomain.com|subdomain2.mydomain.com` (each domain is separated by three dashes: `|`) used to be with `---` separator
+- 🆕 Hostname input uses a new source of data (account) and support 256 symbols limit (DSM UI limit)
+- 🆕 Autodetect IPv4 and IPv6 addresses
+- 🆕 Optimised request to Cloudflare API
+- 🆕 Installer script
 
 ## What this script does
 
 * A PHP script for Synology DSM (and potentially Synology SRM devices) adding support for Cloudflare to Network Centre > Dynamic DNS (DDNS).
 * Supports single domains, multidomains, subdomains and regional domains, or any combination thereof (example: dev.my.domain.com.au, domain.com.uk etc)
-* Easy instalation process
+* 🆕 Easy installation process (added auto install script)
 * Based on CloudFlare API v4
 * [Supports dual stack IPv4 and IPv6](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/pull/13)
 
@@ -47,7 +55,7 @@ Before starting the installation process, make sure you have (and know) the foll
 
 	**Include** > **All zones from an account** > `<domain>`  
 
- 3. *DNS settings:*
+ 2. *DNS settings:*
  
 	Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: [Managing DNS records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare)).
 
@@ -57,7 +65,7 @@ Before starting the installation process, make sure you have (and know) the foll
 
 	![image](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/blob/master/docs/example1.png)
 	
-4. *SSH access to your Synology device:*
+3. *SSH access to your Synology device:*
 
 If you haven't setup this access, see the following Synology Knowledge Base article:
 [How can I sign in to DSM/SRM with root privilege via SSH?[(https://kb.synology.com/en-id/DSM/tutorial/How_to_login_to_DSM_with_root_permission_via_SSH_Telnet)
@@ -86,30 +94,20 @@ For assistance with vi commands, see:
 
 2. **Connect via SSH:** Connect to your supported device via SSH and execute command
 
-* For DSM Users
+* 🆕 For DSM Users
   ```
-  wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/cloudflare.php -O /usr/syno/bin/ddns/cloudflare.php && sudo chmod 755 /usr/syno/bin/ddns/cloudflare.php
+  wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/install.sh -O install.sh && sudo bash install.sh
   ```
 
-* For SRM Users
+* 🆕 For SRM Users
   Note: Ensure you are connected as root in your SSH session
   ```
-  wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/cloudflare.php -O /usr/syno/bin/ddns/cloudflare.php && chmod 755 /usr/syno/bin/ddns/cloudflare.php
+  wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/install.sh -O install.sh && sudo bash install.sh
   ```
 
 	**Note:** For SRM users, you must connect to your device as root. No other username will allow these commands to run.
 
-3. **Update DDNS provider list:** Using a command line editor, insert the text below to your DMS file (Location : __/etc.defaults/ddns_provider.conf__), to add DDNS support via Cloudflare:
-
-	```
-	[Cloudflare]
-	  modulepath=/usr/syno/bin/ddns/cloudflare.php
-	  queryurl=https://www.cloudflare.com/
-	 ```
-
-	 **Note:** For SRM users, break out this [Vim cheat sheet](https://coderwall.com/p/adv71w/basic-vim-commands-for-getting-started), as it's the only text editor available to you.
- 
-4. **Update your DDNS settings:** 
+3. **Update your DDNS settings:** 
 
 	 a. *For DSM Users:* Navigate to __Control Panel > External Access > DDNS__ then add new DDNS
 	 
@@ -118,20 +116,20 @@ For assistance with vi commands, see:
 	Add/Update the DDNS settings screen as follows:
 
 	* Service provider: Select Cloudflare
-	* Hostname:
- For a single domain: __mydomain.com__
-For multiple domains: __subdomain.mydomain.com---vpn.mydomain.com__
-	(ensure each domain is seperated by three dashes: ---)
+    * 🆕Hostname: this field is not used anymore, you can put any value here
+	* Username:
+For a single domain: __mydomain.com__
+For multiple domains: __subdomain.mydomain.com|vpn.mydomain.com__
+	  🆕(ensure each domain is separated: `|`)🆕
     
-        __Note: there is 128 symbols limit on Hostname input__
-	* Username: The email address you use for logging in to Cloudflare (optional since the API key is sufficient)
+        __Note: there is 256 symbols limit on Hostname input__
 	* Password: Your created Cloudflare API Key
 
 	![image](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/blob/master/docs/example3.png)
 
 	Finally, press the test connection button to confirm all information is correctly entered, before pressing Ok to save and confirm your details.
 
-5. Enjoy 🍺 and __don't forget to deactivate SSH (step 1) if you don't need it__.
+4. Enjoy 🍺 and __don't forget to deactivate SSH (step 1) if you don't need it__.
 
 ## Troubleshooting and known issues
 
@@ -179,15 +177,15 @@ If this occurs, simply [repeat the How to install steps](#how-to-install) shown 
 ## Default Cloudflare ports
 Source [Identifying network ports compatible with Cloudflare's proxy](https://support.cloudflare.com/hc/en-us/articles/200169156-Identifying-network-ports-compatible-with-Cloudflare-s-proxy)
 
-|HTTP ports supported by Cloudflare  | HTTPS ports supported by Cloudflare |
-|--|--|
-| 80 | 443 |
-| 8080 | 2053 | 
-| 8880 | 2083 |
-| 2052 | 2087 | 
-| 2082 | 2096 |
-| 2086 | 8443 | 
-| 2095 | |
+| HTTP ports supported by Cloudflare | HTTPS ports supported by Cloudflare |
+|------------------------------------|-------------------------------------|
+| 80                                 | 443                                 |
+| 8080                               | 2053                                | 
+| 8880                               | 2083                                |
+| 2052                               | 2087                                | 
+| 2082                               | 2096                                |
+| 2086                               | 8443                                | 
+| 2095                               |                                     |
 
 ## Debug
 
@@ -198,12 +196,7 @@ You can run this script directly to see output logs
 * Run this command: 
 
 ```
-/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "" "your-CloudFlare-token" "your---domains---divided---by---dashes" "ip-address"
+/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "" "domain1.com|vpn.domain2.com" "your-CloudFlare-token" "" ""
 ```
 
 * Check output logs
-
-## Credits
-
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>  
-<small><i><a href='https://www.youtube.com/watch?v=Nf7m3h11y-s'>DB Tech - creating API keys and using Cloudflare CNAME for single updates</a></i></small>
