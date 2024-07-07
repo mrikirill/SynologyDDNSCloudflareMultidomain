@@ -18,7 +18,7 @@
 
 ## What is new
 
-- 🆕 New hostname input format: `subdomain1.mydomain.com|subdomain2.mydomain.com` (each domain is separated by three dashes: `|`) used to be with `---` separator
+- 🆕 New hostname input format: `subdomain1.mydomain.com|subdomain2.mydomain.com` (each domain is separated: `|`) used to be with `---` separator
 - 🆕 Hostname input uses a new source of data (account) and support 256 symbols limit (DSM UI limit)
 - 🆕 Autodetect IPv4 and IPv6 addresses
 - 🆕 Optimised request to Cloudflare API
@@ -200,3 +200,9 @@ You can run this script directly to see output logs
 ```
 
 * Check output logs
+
+## Credits
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>  
+<small><i><a href='https://www.youtube.com/watch?v=Nf7m3h11y-s'>DB Tech - creating API keys and using Cloudflare CNAME for single updates</a></i></small>
+<small><i><a href='https://www.mkdocs.org'>MKDoc - generate documentation</a></i></small>
