@@ -196,7 +196,7 @@ You can run this script directly to see output logs
 * Run this command: 
 
 ```
-/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "" "domain1.com|vpn.domain2.com" "your-CloudFlare-token" "" ""
+/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "<username>" "<password>" "<hostname>" "<ipv4>"
 ```
 
 * Check output logs
