@@ -2,6 +2,8 @@
 # Synology Dynamic DNS with Cloudflare for both multidomains and subdomains
 
 > Documentation website: https://mrikirill.github.io/SynologyDDNSCloudflareMultidomain/
+> 
+> [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
 
 ## Table of contents
 
@@ -129,7 +131,7 @@ For multiple domains: __subdomain.mydomain.com|vpn.mydomain.com__
 
 	Finally, press the test connection button to confirm all information is correctly entered, before pressing Ok to save and confirm your details.
 
-4. Enjoy 🍺 and __don't forget to deactivate SSH (step 1) if you don't need it__.
+4. Enjoy 🍺 and __don't forget to deactivate SSH (step 1) if you don't need it__. OR [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
 
 ## Troubleshooting and known issues
 
@@ -203,6 +205,4 @@ You can run this script directly to see output logs
 
 ## Credits
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>  
-<small><i><a href='https://www.youtube.com/watch?v=Nf7m3h11y-s'>DB Tech - creating API keys and using Cloudflare CNAME for single updates</a></i></small>
-<small><i><a href='https://www.mkdocs.org'>MKDoc - generate documentation</a></i></small>
+[MKDoc - generate documentation](https://www.mkdocs.org)
