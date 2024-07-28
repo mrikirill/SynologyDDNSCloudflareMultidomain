@@ -22,7 +22,7 @@
 
 - 🆕 New hostname input format: `subdomain1.mydomain.com|subdomain2.mydomain.com` (each domain is separated: `|`) used to be with `---` separator
 - 🆕 Hostname input uses a new source of data (account) and support 256 symbols limit (DSM UI limit)
-- 🆕 Autodetect IPv4 and IPv6 addresses
+- 🆕 Autodetect IPv6 addresses via [ipify.org](https://www.ipify.org)
 - 🆕 Optimised request to Cloudflare API
 - 🆕 Installer script
 
@@ -61,6 +61,8 @@ Before starting the installation process, make sure you have (and know) the foll
  
 	Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: [Managing DNS records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare)).
 
+	Case for if IpV6 is available (check via https://api6.ipify.org), you can create an AAAA record for the domain/zone(s) you wish to update with this script.
+
 	Your DNS records should appear (or already be setup as follows) in Cloudflare:
 	
 	(Note: Having Proxied turned on for your A records isn't necessary, but it will prevent those snooping around from easily finding out your current IP address)
@@ -82,7 +84,7 @@ For assistance with vi commands, see:
 
 ## How to install
 
-1. **SSH with root privledges on your supported device:**
+1. **SSH with root privileges on your supported device:**
 
 	 a. For DSM Users:
 	 
@@ -131,7 +133,8 @@ For multiple domains: __subdomain.mydomain.com|vpn.mydomain.com__
 
 	Finally, press the test connection button to confirm all information is correctly entered, before pressing Ok to save and confirm your details.
 
-4. Enjoy 🍺 and __don't forget to deactivate SSH (step 1) if you don't need it__. OR [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
+4. Don't forget to deactivate SSH (step 1) if you don't need it. Leaving it active can be a security risk.
+5. You're done! Optional, if you're happy with this script you could buy me ☕ or 🍺 here -> [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
 
 ## Troubleshooting and known issues
 
@@ -198,7 +201,7 @@ You can run this script directly to see output logs
 * Run this command: 
 
 ```
-/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "" "domain1.com|vpn.domain2.com" "your-CloudFlare-token" "" ""
+/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "domain1.com|vpn.domain2.com" "your-CloudFlare-token" "" "your-ip-address"
 ```
 
 * Check output logs
