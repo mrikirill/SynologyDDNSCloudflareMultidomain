@@ -8,18 +8,20 @@
  * @author https://github.com/mrikirill
  */
 
-// Note: username - $argv[1], password - $argv[2], hostname - $argv[3], ipv4 - $argv[4]
-if ($argc !== 5 || count($argv) != 5) {
+/**
+ * Synology passes 5 arguments in order:
+ * 0 - not in use
+ * 1 - username - uses for domains: domain1.com|vpn.domain2.com
+ * 2 - password - Cloudflare API token
+ * 3 - hostname - the script doesn't use it die to input limits
+ * 4 - IPv4     - Synology provided IPv4
+ */
+if ($argc !== 5) {
     echo SynologyOutput::BAD_PARAMS;
     exit();
 }
 
-/**
- * Note:
- * Cloudflare API Key - $argv[2]
- * Hostname - $argv[1] we use username as hostname source cause it supports 256 symbols
-*/
-$cf = new SynologyCloudflareDDNSAgent($argv[2], $argv[1]);
+$cf = new SynologyCloudflareDDNSAgent($argv[2], $argv[1], $argv[4]);
 $cf->setDnsRecords();
 $cf->updateDnsRecords();
 
@@ -148,13 +150,13 @@ class CloudflareAPI
 
 class Ipify
 {
-    const API_URL = 'https://api64.ipify.org';
+    const API_URL = 'https://api6.ipify.org';
     /**
-     * Universal: IPv4/IPv6
+     * Return if external IPv6 address is available
      * @link https://www.ipify.org
      * @throws Exception
      */
-    public function getExternalIpAddress()
+    public function tryGetIpv6()
     {
         $options = [
             CURLOPT_URL => self::API_URL . "/?format=json",
@@ -231,24 +233,16 @@ class SynologyCloudflareDDNSAgent
     private $cloudflareAPI;
     private $ipify;
 
-    function __construct($apiKey, $hostname)
+    function __construct($apiKey, $hostname, $ipv4)
     {
         $this->cloudflareAPI = new CloudflareAPI($apiKey);
         $this->ipify = new Ipify();
+        $this->ipv4 = $ipv4;
 
         try {
-            $ip = $this->ipify->getExternalIpAddress();
-            switch ($this->getIpAddressVersion($ip)) {
-                case 4:
-                    $this->ipv4 = $ip;
-                    break;
-                case 6:
-                    $this->ipv6 = $ip;
-                    break;
-            }
+            $ipv6 = $this->ipify->tryGetIpv6();
         } catch (Exception $e) {
-            echo 'Error: ' . $e->getMessage();
-            $this->exitWithSynologyMsg();
+            // IPv6 not available
         }
 
         try {
@@ -283,12 +277,16 @@ class SynologyCloudflareDDNSAgent
         }
 
         try {
-            foreach ($this->dnsRecordList as &$dnsRecord) {
+            foreach ($this->dnsRecordList as $key => $dnsRecord) {
                 $json = $this->cloudflareAPI->getDnsRecords($dnsRecord->zoneId, $dnsRecord->type, $dnsRecord->hostname);
                 if (isset($json['result']['0'])) {
-                    $dnsRecord->id = $json['result']['0']['id'];
-                    $dnsRecord->ttl = $json['result']['0']['ttl'];
-                    $dnsRecord->proxied = $json['result']['0']['proxied'];
+                    // If the DNS record exists, update its ID, TTL, and proxied status
+                    $this->dnsRecordList[$key]->id = $json['result']['0']['id'];
+                    $this->dnsRecordList[$key]->ttl = $json['result']['0']['ttl'];
+                    $this->dnsRecordList[$key]->proxied = $json['result']['0']['proxied'];
+                } else {
+                    // If the DNS record does not exist, remove it from the list
+                    unset($this->dnsRecordList[$key]);
                 }
             }
         } catch (Exception $e) {
@@ -341,43 +339,34 @@ class SynologyCloudflareDDNSAgent
                 $zoneName = $zone['name'];
                 foreach ($hostnameList as $hostname) {
                     if (strpos($hostname, $zoneName) !== false) {
-                        $this->dnsRecordList[$hostname] = new DnsRecordEntity(
+                        // Add an IPv4 DNS record for each hostname that matches a zone
+                        $this->dnsRecordList[] = new DnsRecordEntity(
                             '',
-                            $this->getDnsRecordType(),
+                            'A',
                             $hostname,
-                            $this->getIpAddress(),
+                            $this->ipv4,
                             $zoneId,
                             '',
                             ''
                         );
+                        if (isset($this->ipv6)) {
+                            // Add an IPv6 DNS record if an IPv6 address is available
+                            $this->dnsRecordList[] = new DnsRecordEntity(
+                                '',
+                                'AAAA',
+                                $hostname,
+                                $this->ipv6,
+                                $zoneId,
+                                '',
+                                ''
+                            );
+                        }
                     }
                 }
             }
         } catch (Exception $e) {
             $this->exitWithSynologyMsg(SynologyOutput::NO_HOSTNAME);
         }
-    }
-
-    /**
-     * Determines the DNS record type (A or AAAA) based on the IP version.
-     * Returns 'AAAA' if IPv6 is present, or 'A' if only IPv4 is available.
-     *
-     * @return string The DNS record type, either 'A' or 'AAAA'.
-     */
-    private function getDnsRecordType()
-    {
-        return $this->ipv6 ? 'AAAA' : 'A';
-    }
-
-    /**
-     * Retrieves the current external IP address.
-     * If both IPv4 and IPv6 are available, returns the IPv6 address.
-     *
-     * @return string The current external IP address, either IPv4 or IPv6.
-     */
-    private function getIpAddress()
-    {
-        return $this->ipv6 ? $this->ipv6 : $this->ipv4;
     }
 
     /**
@@ -448,26 +437,6 @@ class SynologyCloudflareDDNSAgent
     {
         echo $msg;
         exit();
-    }
-
-    /**
-     * Determines the IP address version (IPv4 or IPv6) of a given IP address.
-     *
-     * This method checks if the provided IP address is a valid, public IPv6 or IPv4 address.
-     *
-     * @param string $ip The IP address to be evaluated.
-     * @return int Returns 6 if the IP address is a valid IPv6 address, 4 if it is a valid IPv4 address.
-     * @throws InvalidArgumentException if the IP address is not valid or is not public.
-     */
-    private function getIpAddressVersion($ip)
-    {
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-            return 6;
-        } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-            return 4;
-        } else {
-            throw new InvalidArgumentException('Invalid IP address');
-        }
     }
 }
 ?>
