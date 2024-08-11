@@ -399,7 +399,7 @@ class SynologyCloudflareDDNSAgent
      */
     private function isValidHostname($value)
     {
-        $domainPattern = "/^(?!-)(?:(?:[a-zA-Z\d][a-zA-Z\d\-]{0,61})?[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/";
+        $domainPattern = "/^(?!-)(?:\*\.)?(?:(?:[a-zA-Z\d][a-zA-Z\d\-]{0,61})?[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/";
         return preg_match($domainPattern, $value);
     }
 
