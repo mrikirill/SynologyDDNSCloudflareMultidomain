@@ -5,7 +5,7 @@
 > 
 > [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
 
-📢 *Check out the new native version of this agent, written in Kotlin -> [KTSynologyDDNSCloudflareMultidomain](https://github.com/mrikirill/KTSynologyDDNSCloudflareMultidomain)* 📢
+📢 *Check out the new native version of this agent, written in Kotlin -> [KTSynologyDDNSCloudflareMultidomain](https://github.com/mrikirill/KTSynologyDDNSCloudflareMultidomain)* 
 
 ## Table of contents
 
