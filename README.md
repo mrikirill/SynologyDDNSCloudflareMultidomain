@@ -5,6 +5,8 @@
 > 
 > [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
 
+📢 *Check out the new native version of this agent, written in Kotlin -> [KTSynologyDDNSCloudflareMultidomain](https://github.com/mrikirill/KTSynologyDDNSCloudflareMultidomain)* 📢
+
 ## Table of contents
 
 * 🆕 [What is new](#what-is-new)
@@ -17,6 +19,7 @@
   + [Cloudflare no longer listed as a DDNS provider after a DSM update](#cloudflare-no-longer-listed-as-a-ddns-provider-after-dsm-or-srm-updates)
 * [Default Cloudflare ports](#default-cloudflare-ports)
 * [Debug script](#debug)
+* [Support this project](#support-this-project)
 
 ## What is new
 
@@ -209,3 +212,7 @@ You can run this script directly to see output logs
 ## Credits
 
 [MKDoc - generate documentation](https://www.mkdocs.org)
+
+## Support this project
+
+If you find this project helpful, please support it here [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
