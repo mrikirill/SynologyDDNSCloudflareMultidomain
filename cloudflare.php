@@ -240,7 +240,7 @@ class SynologyCloudflareDDNSAgent
         $this->ipv4 = $ipv4;
 
         try {
-            $ipv6 = $this->ipify->tryGetIpv6();
+            $this->ipv6 = $this->ipify->tryGetIpv6();
         } catch (Exception $e) {
             // IPv6 not available
         }
