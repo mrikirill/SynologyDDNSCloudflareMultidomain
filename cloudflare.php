@@ -16,14 +16,16 @@
  * 3 - hostname - the script doesn't use it die to input limits
  * 4 - IPv4     - Synology provided IPv4
  */
-if ($argc !== 5) {
-    echo SynologyOutput::BAD_PARAMS;
-    exit();
-}
+if (realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
+    if ($argc !== 5) {
+        echo SynologyOutput::BAD_PARAMS;
+        exit();
+    }
 
-$cf = new SynologyCloudflareDDNSAgent($argv[2], $argv[1], $argv[4]);
-$cf->setDnsRecords();
-$cf->updateDnsRecords();
+    $cf = new SynologyCloudflareDDNSAgent($argv[2], $argv[1], $argv[4]);
+    $cf->setDnsRecords();
+    $cf->updateDnsRecords();
+}
 
 class SynologyOutput
 {
@@ -197,6 +199,7 @@ class DnsRecordEntity
     public $zoneId;
     public $ttl;
     public $proxied;
+    public $currentIp;
 
     public function __construct($id, $type, $hostname, $ip, $zoneId, $ttl, $proxied)
     {
@@ -233,10 +236,10 @@ class SynologyCloudflareDDNSAgent
     private $cloudflareAPI;
     private $ipify;
 
-    function __construct($apiKey, $hostname, $ipv4)
+    function __construct($apiKey, $hostname, $ipv4, $cloudflareAPI = null, $ipify = null)
     {
-        $this->cloudflareAPI = new CloudflareAPI($apiKey);
-        $this->ipify = new Ipify();
+        $this->cloudflareAPI = $cloudflareAPI ?: new CloudflareAPI($apiKey);
+        $this->ipify = $ipify ?: new Ipify();
         $this->ipv4 = $ipv4;
 
         try {
@@ -280,10 +283,11 @@ class SynologyCloudflareDDNSAgent
             foreach ($this->dnsRecordList as $key => $dnsRecord) {
                 $json = $this->cloudflareAPI->getDnsRecords($dnsRecord->zoneId, $dnsRecord->type, $dnsRecord->hostname);
                 if (isset($json['result']['0'])) {
-                    // If the DNS record exists, update its ID, TTL, and proxied status
+                    // If the DNS record exists, update its ID, TTL, proxied status, and current IP
                     $this->dnsRecordList[$key]->id = $json['result']['0']['id'];
                     $this->dnsRecordList[$key]->ttl = $json['result']['0']['ttl'];
                     $this->dnsRecordList[$key]->proxied = $json['result']['0']['proxied'];
+                    $this->dnsRecordList[$key]->currentIp = $json['result']['0']['content'];
                 } else {
                     // If the DNS record does not exist, remove it from the list
                     unset($this->dnsRecordList[$key]);
@@ -308,6 +312,11 @@ class SynologyCloudflareDDNSAgent
             $this->exitWithSynologyMsg(SynologyOutput::NO_HOSTNAME);
         }
         foreach ($this->dnsRecordList as $dnsRecord) {
+            // Skip update if the IP address hasn't changed
+            if ($dnsRecord->ip === $dnsRecord->currentIp) {
+                continue;
+            }
+            
             try {
                $this->cloudflareAPI->updateDnsRecord($dnsRecord->zoneId, $dnsRecord->id, $dnsRecord->toArray());
             } catch (Exception $e) {
@@ -338,7 +347,8 @@ class SynologyCloudflareDDNSAgent
                 $zoneId = $zone['id'];
                 $zoneName = $zone['name'];
                 foreach ($hostnameList as $hostname) {
-                    if (strpos($hostname, $zoneName) !== false) {
+                    // Check if the hostname ends with the zone name
+                    if ($hostname === $zoneName || substr($hostname, -strlen('.' . $zoneName)) === '.' . $zoneName) {
                         // Add an IPv4 DNS record for each hostname that matches a zone
                         $this->dnsRecordList[] = new DnsRecordEntity(
                             '',
@@ -400,7 +410,7 @@ class SynologyCloudflareDDNSAgent
     private function isValidHostname($value)
     {
         $domainPattern = "/^(?!-)(?:\*\.)?(?:(?:[a-zA-Z\d][a-zA-Z\d\-]{0,61})?[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/";
-        return preg_match($domainPattern, $value);
+        return preg_match($domainPattern, $value) === 1;
     }
 
     /**
@@ -433,7 +443,7 @@ class SynologyCloudflareDDNSAgent
      * @param string $msg The message to be output before exiting.
      * If no message is specified, an empty string is printed.
      */
-    private function exitWithSynologyMsg($msg = '')
+    protected function exitWithSynologyMsg($msg = '')
     {
         echo $msg;
         exit();

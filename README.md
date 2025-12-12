@@ -9,10 +9,9 @@
 
 ## Table of contents
 
-* 🆕 [What is new](#what-is-new)
-* [What this script does](#what-this-script-does)
+* [Features](#features)
 * [Before you begin](#before-you-begin)
-* 🆕 [How to install](#how-to-install)
+* [How to install](#how-to-install)
 * [Troubleshooting and known issues](#troubleshooting-and-known-issues)
   + [CloudFlare API free domains limitation](#cloudflare-api-free-domains-limitation)
   + [Connection test failed or error returned](#connection-test-failed-or-error-returned)
@@ -21,21 +20,14 @@
 * [Debug script](#debug)
 * [Support this project](#support-this-project)
 
-## What is new
+## Features
 
-- 🆕 New hostname input format: `subdomain1.mydomain.com|subdomain2.mydomain.com` (each domain is separated: `|`) used to be with `---` separator
-- 🆕 Hostname input uses a new source of data (account) and support 256 symbols limit (DSM UI limit)
-- 🆕 Autodetect IPv6 addresses via [ipify.org](https://www.ipify.org)
-- 🆕 Optimised request to Cloudflare API
-- 🆕 Installer script
-
-## What this script does
-
-* A PHP script for Synology DSM (and potentially Synology SRM devices) adding support for Cloudflare to Network Centre > Dynamic DNS (DDNS).
-* Supports single domains, multidomains, subdomains and regional domains, or any combination thereof (example: dev.my.domain.com.au, domain.com.uk etc)
-* 🆕 Easy installation process (added auto install script)
-* Based on CloudFlare API v4
-* [Supports dual stack IPv4 and IPv6](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/pull/13)
+* **Synology Integration**: Adds Cloudflare support to Synology DSM and SRM Network Center > Dynamic DNS (DDNS).
+* **Comprehensive Domain Support**: Supports single domains, multidomains, subdomains, and regional domains (e.g., `dev.my.domain.com.au`).
+* **Dual Stack**: Autodetects and updates both IPv4 and IPv6 addresses.
+* **Easy Installation**: Automated installation script via SSH or Task Scheduler.
+* **Modern API**: Based on Cloudflare API v4 with optimized requests.
+* **Extended Capabilities**: Supports up to 256 characters for hostnames.
 
 ## Before you begin
 
@@ -56,7 +48,7 @@ Before starting the installation process, make sure you have (and know) the foll
 	 **Zone** > **Zone** > **Read**  
 	 **Zone** > **DNS** > **Edit**  
 
-	 The affected zone ressouces have to be (at least):
+	 The affected zone resources have to be (at least):
 
 	**Include** > **All zones from an account** > `<domain>`  
 
@@ -64,7 +56,7 @@ Before starting the installation process, make sure you have (and know) the foll
  
 	Ensure the DNS A record(s) for the domain/zone(s) you wish to update with this script have been created (More information: [Managing DNS records](https://support.cloudflare.com/hc/en-us/articles/360019093151-Managing-DNS-records-in-Cloudflare)).
 
-	Case for if IpV6 is available (check via https://api6.ipify.org), you can create an AAAA record for the domain/zone(s) you wish to update with this script.
+	Case for if IPv6 is available (check via https://api6.ipify.org), you can create an AAAA record for the domain/zone(s) you wish to update with this script.
 
 	Your DNS records should appear (or already be setup as follows) in Cloudflare:
 	
@@ -75,7 +67,7 @@ Before starting the installation process, make sure you have (and know) the foll
 3. *SSH access to your Synology device:*
 
 If you haven't setup this access, see the following Synology Knowledge Base article:
-[How can I sign in to DSM/SRM with root privilege via SSH?[(https://kb.synology.com/en-id/DSM/tutorial/How_to_login_to_DSM_with_root_permission_via_SSH_Telnet)
+[How can I sign in to DSM/SRM with root privilege via SSH?](https://kb.synology.com/en-id/DSM/tutorial/How_to_login_to_DSM_with_root_permission_via_SSH_Telnet)
 
 4. *SRM users: Knowledge of vi:*
 
@@ -86,6 +78,8 @@ For assistance with vi commands, see:
 
 
 ## How to install
+
+### Method 1: via SSH
 
 1. **SSH with root privileges on your supported device:**
 
@@ -129,7 +123,7 @@ For a single domain: __mydomain.com__
 For multiple domains: __subdomain.mydomain.com|vpn.mydomain.com__
 	  🆕(ensure each domain is separated: `|`)🆕
     
-        __Note: there is 256 symbols limit on Hostname input__
+        __Note: there is a 256-character limit on Hostname input__
 	* Password: Your created Cloudflare API Key
 
 	![image](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/blob/master/docs/example3.png)
@@ -139,11 +133,29 @@ For multiple domains: __subdomain.mydomain.com|vpn.mydomain.com__
 4. Don't forget to deactivate SSH (step 1) if you don't need it. Leaving it active can be a security risk.
 5. You're done! Optional, if you're happy with this script you could buy me ☕ or 🍺 here -> [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
 
+### Method 2: via Task Scheduler (No SSH required)
+
+1. Open **Control Panel** > **Task Scheduler**.
+2. Click **Create** > **Scheduled Task** > **User-defined script**.
+3. In the **General** tab:
+    *   **Task**: Install Cloudflare DDNS
+    *   **User**: `root` **(Important!)**
+    *   Uncheck "Enabled" (we only need to run this once).
+4. In the **Task Settings** tab:
+    *   **Run command**:
+        ```bash
+        wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/install.sh -O /tmp/install.sh && bash /tmp/install.sh
+        ```
+5. Click **OK**.
+6. Select the newly created task and click **Run**.
+7. Once the task has finished (you can check via Action > View Result), you can delete the task.
+8. Proceed to **Step 3** in Method 1 above to configure the DDNS settings in Control Panel.
+
 ## Troubleshooting and known issues
 
-### CloudFlare API free domains limitation
+### Cloudflare API free domains limitation
 
-CloudFlare API doesn't support domains with a .cf, .ga, .gq, .ml, or .tk TLD (top-level domain)
+Cloudflare API doesn't support domains with a .cf, .ga, .gq, .ml, or .tk TLD (top-level domain)
 
 For more details read here: https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/issues/28 and https://community.cloudflare.com/t/unable-to-update-ddns-using-api-for-some-tlds/167228/61
 
@@ -204,7 +216,7 @@ You can run this script directly to see output logs
 * Run this command: 
 
 ```
-/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "domain1.com|vpn.domain2.com" "your-CloudFlare-token" "" "your-ip-address"
+/usr/bin/php -d open_basedir=/usr/syno/bin/ddns -f /usr/syno/bin/ddns/cloudflare.php "domain1.com|vpn.domain2.com" "your-Cloudflare-token" "" "your-ip-address"
 ```
 
 * Check output logs

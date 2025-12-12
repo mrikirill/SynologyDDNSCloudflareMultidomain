@@ -1,0 +1,10 @@
+{
+    "name": "mrikirill/synology-ddns-cloudflare-multidomain",
+    "description": "Synology Dynamic DNS with Cloudflare for both multidomains and subdomains",
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    },
+    "autoload": {
+        "classmap": ["cloudflare.php"]
+    }
+}
