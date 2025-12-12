@@ -1,6 +1,8 @@
 
 # Synology Dynamic DNS with Cloudflare for both multidomains and subdomains
 
+[![PHP Unit Tests](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/actions/workflows/php-test.yml/badge.svg?branch=master)](https://github.com/mrikirill/SynologyDDNSCloudflareMultidomain/actions/workflows/php-test.yml)
+
 > Documentation website: https://mrikirill.github.io/SynologyDDNSCloudflareMultidomain/
 > 
 > [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
