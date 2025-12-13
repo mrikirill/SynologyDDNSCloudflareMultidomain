@@ -6,8 +6,8 @@
 > Documentation website: https://mrikirill.github.io/SynologyDDNSCloudflareMultidomain/
 > 
 > [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
-
-📢 *Check out the new native version of this agent, written in Kotlin -> [KTSynologyDDNSCloudflareMultidomain](https://github.com/mrikirill/KTSynologyDDNSCloudflareMultidomain)* 
+>
+> 📢 **Check out the new native version of this agent, written in Kotlin -> [KTSynologyDDNSCloudflareMultidomain](https://github.com/mrikirill/KTSynologyDDNSCloudflareMultidomain)** 
 
 ## Table of contents
 
@@ -81,7 +81,24 @@ For assistance with vi commands, see:
 
 ## How to install
 
-### Method 1: via SSH
+### Method 1: via Task Scheduler (Recommended - No SSH required)
+
+1. Open **Control Panel** > **Task Scheduler**.
+2. Click **Create** > **Scheduled Task** > **User-defined script**.
+3. In the **General** tab:
+    *   **Task**: Install Cloudflare DDNS
+    *   **User**: `root` **(Important!)**
+    *   Uncheck "Enabled" (we only need to run this once).
+4. In the **Task Settings** tab:
+    *   **Run command**:
+        ```bash
+        wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/install.sh -O /tmp/install.sh && bash /tmp/install.sh
+        ```
+5. Click **OK**.
+6. Select the newly created task and click **Run**.
+7. Once the task has finished (you can check via Action > View Result), you can delete the task.
+
+### Method 2: via SSH
 
 1. **SSH with root privileges on your supported device:**
 
@@ -109,8 +126,11 @@ For assistance with vi commands, see:
   ```
 
 	**Note:** For SRM users, you must connect to your device as root. No other username will allow these commands to run.
+    **Don't forget to deactivate SSH (step 1) if you don't need it.** Leaving it active can be a security risk.
 
-3. **Update your DDNS settings:** 
+### Configure DDNS (Required for both methods)
+
+**Update your DDNS settings:** 
 
 	 a. *For DSM Users:* Navigate to __Control Panel > External Access > DDNS__ then add new DDNS
 	 
@@ -132,26 +152,7 @@ For multiple domains: __subdomain.mydomain.com|vpn.mydomain.com__
 
 	Finally, press the test connection button to confirm all information is correctly entered, before pressing Ok to save and confirm your details.
 
-4. Don't forget to deactivate SSH (step 1) if you don't need it. Leaving it active can be a security risk.
-5. You're done! Optional, if you're happy with this script you could buy me ☕ or 🍺 here -> [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
-
-### Method 2: via Task Scheduler (No SSH required)
-
-1. Open **Control Panel** > **Task Scheduler**.
-2. Click **Create** > **Scheduled Task** > **User-defined script**.
-3. In the **General** tab:
-    *   **Task**: Install Cloudflare DDNS
-    *   **User**: `root` **(Important!)**
-    *   Uncheck "Enabled" (we only need to run this once).
-4. In the **Task Settings** tab:
-    *   **Run command**:
-        ```bash
-        wget https://raw.githubusercontent.com/mrikirill/SynologyDDNSCloudflareMultidomain/master/install.sh -O /tmp/install.sh && bash /tmp/install.sh
-        ```
-5. Click **OK**.
-6. Select the newly created task and click **Run**.
-7. Once the task has finished (you can check via Action > View Result), you can delete the task.
-8. Proceed to **Step 3** in Method 1 above to configure the DDNS settings in Control Panel.
+4. You're done! Optional, if you're happy with this script you could buy me ☕ or 🍺 here -> [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/mrikirill)
 
 ## Troubleshooting and known issues
 
